@@ -37,14 +37,17 @@ public class CreateContainsGeometryObjectTest extends TestCase {
      * Test of generateGeometry method, of class CreateContainsGeometryObject.
      */
     public void testGenerateGeometry() throws ParseException {
-        LineString line = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
+        LineString line = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011)");
+        LineString line1 = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011)");
 
-        CreateEqualGeometryObject instanceL1 = new CreateEqualGeometryObject(line, GeometryType.GeometryTypes.LinearRing);
+        
+        CreateContainsGeometryObject instanceL1 = new CreateContainsGeometryObject(line, GeometryType.GeometryTypes.LineString);
         Geometry resultL1 = instanceL1.generateGeometry();
         System.out.println("result: " + resultL1);
-       
+        System.out.println("LineString contains LineString: " + line.contains(line1));
+        
         System.out.println("LineString contains LineString: " + line.contains(resultL1));
-        assertTrue(line.equalsTopo(resultL1));
+        assertTrue(line.contains(resultL1));
     }
 
 }

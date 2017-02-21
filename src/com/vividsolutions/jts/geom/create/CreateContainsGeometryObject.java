@@ -5,7 +5,6 @@
  */
 package com.vividsolutions.jts.geom.create;
 
-import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -15,7 +14,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import java.util.Random;
 
 /**
  *
@@ -29,7 +28,7 @@ public class CreateContainsGeometryObject extends GeometryType {
     protected Class<?> returnedGeometry;
 
     public CreateContainsGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-        this.chunk = 2;
+        this.chunk = 4;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
@@ -97,13 +96,12 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        int numOfPoints = lineString.getNumPoints();
-                        LineStringGenerator pg = new LineStringGenerator();
-                        pg.setGeometryFactory(geometryFactory);
-                        pg.setBoundingBox(lineString.getEnvelopeInternal());
-                        pg.setNumberPoints(numOfPoints);
-                        LineString pt = (LineString) pg.create();
-                        this.returned = pt;
+                        LineString[] lineArray = getLineStringArray(lineString, chunk);
+                        Random randomGenerator = new Random();
+                        int randomInt = randomGenerator.nextInt(lineArray.length);
+                        System.out.println("randomInt " +randomInt);
+                        LineString line = lineArray[randomInt];                        
+                        this.returned = line;
                         break;
                     case "LinearRing":
                         break;
