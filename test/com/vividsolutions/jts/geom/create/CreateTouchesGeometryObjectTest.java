@@ -15,42 +15,32 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static junit.framework.Assert.assertTrue;
+import junit.framework.TestCase;
 
 /**
  *
  * @author jsaveta
  */
-public class CreateTouchesGeometryObjectTest {
-
-    public CreateTouchesGeometryObjectTest() {
+public class CreateTouchesGeometryObjectTest extends TestCase {
+    
+    public CreateTouchesGeometryObjectTest(String testName) {
+        super(testName);
     }
-
-    @BeforeClass
-    public static void setUpClass() {
+    
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
     }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+    
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 
     /**
      * Test of generateGeometry method, of class CreateTouchesGeometryObject.
      */
-    @Test
     public void testGenerateGeometry() throws ParseException {
         System.out.println("generateGeometry");
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -79,7 +69,6 @@ public class CreateTouchesGeometryObjectTest {
         assertTrue(point.touches(poly));
         assertTrue(point1.touches(poly));
         assertTrue(line1.touches(line));
-
     }
-
+    
 }

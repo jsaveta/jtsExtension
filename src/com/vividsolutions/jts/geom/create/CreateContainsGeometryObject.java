@@ -5,6 +5,7 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -14,6 +15,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 
 /**
  *
@@ -42,7 +44,7 @@ public class CreateContainsGeometryObject extends GeometryType {
             case "Point":
                 //points cannot touch to each other
                 Point point = (Point) this.given;
-                switch (this.returnedGeometry.getSimpleName()) {                   
+                switch (this.returnedGeometry.getSimpleName()) {
                     case "Point":
                         break;
                     case "MultiPoint":
@@ -65,7 +67,7 @@ public class CreateContainsGeometryObject extends GeometryType {
                 break;
             case "MultiPoint":
                 MultiPoint multipoint = (MultiPoint) this.given;
-                switch (this.returnedGeometry.getSimpleName()) {                    
+                switch (this.returnedGeometry.getSimpleName()) {
                     case "Point":
                         break;
                     case "MultiPoint":
@@ -95,7 +97,13 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        //@TODO: IMPLEMENT THIS FIRST
+                        int numOfPoints = lineString.getNumPoints();
+                        LineStringGenerator pg = new LineStringGenerator();
+                        pg.setGeometryFactory(geometryFactory);
+                        pg.setBoundingBox(lineString.getEnvelopeInternal());
+                        pg.setNumberPoints(numOfPoints);
+                        LineString pt = (LineString) pg.create();
+                        this.returned = pt;
                         break;
                     case "LinearRing":
                         break;

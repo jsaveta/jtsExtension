@@ -38,8 +38,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.xml.sax.SAXException;
 
-import com.vividsolutions.jts.generator.MultiGenerator;
-import com.vividsolutions.jts.generator.PointGenerator;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPoint;
 

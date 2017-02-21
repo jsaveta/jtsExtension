@@ -14,45 +14,35 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.create.GeometryType.GeometryTypes;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertTrue;
+import junit.framework.TestCase;
 
 /**
  *
  * @author jsaveta
  */
-public class CreateEqualGeometryObjectTest {
-
-    public CreateEqualGeometryObjectTest() {
+public class CreateEqualGeometryObjectTest extends TestCase {
+    
+    public CreateEqualGeometryObjectTest(String testName) {
+        super(testName);
     }
-
-    @BeforeClass
-    public static void setUpClass() {
+    
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
     }
-
-    @AfterClass
-    public static void tearDownClass() {
-    }
-
-    @Before
-    public void setUp() {
-    }
-
-    @After
-    public void tearDown() {
+    
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
     }
 
     /**
      * Test of generateGeometry method, of class CreateEqualGeometryObject.
      */
-    @Test
     public void testGenerateGeometry() throws ParseException {
         System.out.println("generateGeometry");
         GeometryFactory geometryFactory = new GeometryFactory();
@@ -64,7 +54,7 @@ public class CreateEqualGeometryObjectTest {
         Point point = geometryFactory.createPoint(coord);
 
         //point -> point
-        CreateEqualGeometryObject p1 = new CreateEqualGeometryObject(point, GeometryTypes.Point);
+        CreateEqualGeometryObject p1 = new CreateEqualGeometryObject(point, GeometryType.GeometryTypes.Point);
         Geometry expResultP1 = reader.read("POINT (-5.998535 6.521366)");
         Geometry resultP1 = p1.generateGeometry();
         System.out.println("expResult Point: " + expResultP1);
@@ -77,7 +67,7 @@ public class CreateEqualGeometryObjectTest {
         
 
         //point -> multipoint
-        CreateEqualGeometryObject instanceMP1 = new CreateEqualGeometryObject(point, GeometryTypes.MultiPoint);
+        CreateEqualGeometryObject instanceMP1 = new CreateEqualGeometryObject(point, GeometryType.GeometryTypes.MultiPoint);
         Geometry expResultMP1 = reader.read("MULTIPOINT ((-5.998535 6.521366))");
         Geometry resultMP1 = instanceMP1.generateGeometry();
         System.out.println("expResult MultiPoint: " + expResultMP1);
@@ -105,7 +95,7 @@ public class CreateEqualGeometryObjectTest {
         MultiPoint multipointOne = geometryFactory.createMultiPoint(pointArray);
 
         //multipoint (with one point) -> point
-        CreateEqualGeometryObject instanceP2 = new CreateEqualGeometryObject(multipointOne, GeometryTypes.Point);
+        CreateEqualGeometryObject instanceP2 = new CreateEqualGeometryObject(multipointOne, GeometryType.GeometryTypes.Point);
         Geometry expResultP2 = reader.read("POINT (-5.998535 6.521366)");
         Geometry resultP2 = instanceP2.generateGeometry();
         System.out.println("expResult Point: " + expResultP2);
@@ -136,7 +126,7 @@ public class CreateEqualGeometryObjectTest {
         //LINESTRING -> LINEARRING
         LineString line = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
 
-        CreateEqualGeometryObject instanceL1 = new CreateEqualGeometryObject(line, GeometryTypes.LinearRing);
+        CreateEqualGeometryObject instanceL1 = new CreateEqualGeometryObject(line, GeometryType.GeometryTypes.LinearRing);
         Geometry expResultL1 = reader.read("LINEARRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
         Geometry resultL1 = instanceL1.generateGeometry();
         System.out.println("expResult: " + expResultL1);
@@ -148,7 +138,7 @@ public class CreateEqualGeometryObjectTest {
 
         //LINESTRING -> MULTILINESTRING
         line = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040)");
-        CreateEqualGeometryObject instanceL2 = new CreateEqualGeometryObject(line, GeometryTypes.MultiLineString);
+        CreateEqualGeometryObject instanceL2 = new CreateEqualGeometryObject(line, GeometryType.GeometryTypes.MultiLineString);
         //for chunk = 2
         Geometry expResultL2 = reader.read("MULTILINESTRING((-5.998535 6.521366, 18.918457 3.501085), (18.918457 3.501085, 19.045658 3.531829), (19.045658 3.531829, 19.164791 3.564040))");
 
@@ -188,7 +178,7 @@ public class CreateEqualGeometryObjectTest {
         LinearRing ring = (LinearRing) reader.read("LINEARRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
 
         
-        CreateEqualGeometryObject instanceL5 = new CreateEqualGeometryObject(ring, GeometryTypes.LineString);
+        CreateEqualGeometryObject instanceL5 = new CreateEqualGeometryObject(ring, GeometryType.GeometryTypes.LineString);
         Geometry expResultL5 = reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
         Geometry resultL5 = instanceL5.generateGeometry();
         System.out.println("expResult: " + expResultL5);
@@ -199,7 +189,7 @@ public class CreateEqualGeometryObjectTest {
         assertTrue(ring.equalsTopo(resultL5));
 
         //LINEARRING -> MULTILINESTRING
-        CreateEqualGeometryObject instanceL6 = new CreateEqualGeometryObject(ring, GeometryTypes.MultiLineString);
+        CreateEqualGeometryObject instanceL6 = new CreateEqualGeometryObject(ring, GeometryType.GeometryTypes.MultiLineString);
         //for chunk = 2
         Geometry expResultL6 = reader.read("MULTILINESTRING((-5.998535 6.521366, 18.918457 3.501085), (18.918457 3.501085, 19.045658 3.531829), (19.045658 3.531829, 19.164791 3.564040),  (19.164791 3.564040, 19.281864 3.612011), (19.281864 3.612011, -5.998535 6.521366))");
 
@@ -242,7 +232,7 @@ public class CreateEqualGeometryObjectTest {
 //        System.out.println("Is equals MULTILINESTRING -> POLYGON: " + multiline.equalsTopo(resultL8));
 //        assertTrue(multiline.equalsTopo(resultL8));
         
-        CreateEqualGeometryObject instanceL9 = new CreateEqualGeometryObject(multiline, GeometryTypes.GeometryCollection);
+        CreateEqualGeometryObject instanceL9 = new CreateEqualGeometryObject(multiline, GeometryType.GeometryTypes.GeometryCollection);
         Geometry resultL9 = instanceL9.generateGeometry();
         
         ring = (LinearRing) reader.read("LINEARRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, -5.998535 6.521366)");
@@ -267,7 +257,6 @@ public class CreateEqualGeometryObjectTest {
 //
 //        System.out.println("Is equals POLYGON -> MULTILINESTRING: " + poly.equalsTopo(resultL10));
 //        assertTrue(poly.equalsTopo(resultL10));
-
     }
-
+    
 }
