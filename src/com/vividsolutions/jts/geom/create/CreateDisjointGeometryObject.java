@@ -102,16 +102,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-
-                        Envelope env = lineString.getEnvelopeInternal();
-
-                        double minX = env.getMinX();
-                        double maxX = env.getMaxX();
-                        double minY = env.getMinY();
-                        double maxY = env.getMaxY();
-
-                        System.out.println("env " + env);
-
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         pg.setNumberPoints(lineString.getCoordinates().length);
@@ -119,45 +109,13 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         Random rn = new Random();
                         int parts = rn.nextInt(1);
 
-                        Envelope disjEnv = generateDisjointEnvelope(lineString, 3);
+                        Envelope disjEnv = generateDisjointEnvelope(lineString, 3); //parts instead of 3
 
-//                        Random rn = new Random();
-//                        int side = rn.nextInt(1); //0 for left side, 1 for right side
-//                        System.out.println("side " + side);
-//
-//                        // na min einai akrivos sta min kai max
-//                        //creates line on the left
-//                        if (side == 0) {
-//                            if (minX >= 0 && minY >= 0) {
-//                                disjEnv = new Envelope(minX, 0, minY, 0);
-//                            } else if (minX >= 0 && minY < 0) {
-//                                disjEnv = new Envelope(minX, 0, minY, -90);
-//                            } else if (minX < 0 && minY >= 0) {
-//                                disjEnv = new Envelope(minX, -90, minY, 0);
-//                            } else if (minX < 0 && minY < 0) {
-//                                disjEnv = new Envelope(minX, -180, minY, -90);
-//                            }
-//                        }
-//
-//                        //creates line on the right
-//                        if (side == 1) {
-//                            if (maxX >= 0 && maxY >= 0) {
-//                                disjEnv = new Envelope(maxX, 180, maxY, 90);
-//                            } else if (maxX >= 0 && maxY < 0) {
-//                                disjEnv = new Envelope(maxX, 180, maxY, -90);
-//                            } else if (maxX < 0 && maxY >= 0) {
-//                                disjEnv = new Envelope(maxX, -180, maxY, 90);
-//                            } else if (maxX < 0 && maxY < 0) {
-//                                disjEnv = new Envelope(maxX, -180, maxY, -90);
-//                            }
-//                        }
-                        System.out.println("null? " + disjEnv.isNull());
-                        System.out.println("disjEnv " + disjEnv);
-                        System.out.println("intersect? " + env.intersects(disjEnv));
-
+//                        System.out.println("null? " + disjEnv.isNull());
+//                        System.out.println("disjEnv " + disjEnv);
+//                        System.out.println("intersect? " + env.intersects(disjEnv));
                         if (!disjEnv.isNull()) {
                             pg.setBoundingBox(disjEnv);
-
                             LineString pt = (LineString) pg.create();
                             this.returned = pt;
                         }
@@ -297,12 +255,8 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
     protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
         Envelope disjointEnv = null;
-
-        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);        
-        double minX_ = -180d;
-        double maxX_ = 180d;
-        double minY_ = -90;
-        double maxY_ = 90d;
+        System.out.println("env " + geo.getEnvelopeInternal());
+        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
 
         double maxXSoFar = envelopes.get(0).getMinX();
         double minXSoFar = envelopes.get(0).getMaxX();
@@ -313,10 +267,13 @@ public class CreateDisjointGeometryObject extends GeometryType {
         double maxX = envelopes.get(0).getMaxX();
         double minY = envelopes.get(0).getMinY();
         double maxY = envelopes.get(0).getMaxY();
-        
+
+        double minX_ = -180d;
+        double maxX_ = 180d;
+        double minY_ = -90;
+        double maxY_ = 90d;
         Map<Integer, Integer> envelopeCases;
         Random coin = new Random();
-        
 
         boolean rollBack = true;
         while (rollBack) {
@@ -324,11 +281,11 @@ public class CreateDisjointGeometryObject extends GeometryType {
             for (int i = 0; i < envelopes.size(); i++) {
                 envelopeCases.put(i, coin.nextInt(4));
             }
-            //System.out.println("map " + envelopeCases.toString());
+            System.out.println("map " + envelopeCases.toString());
             for (int i = 0; i < envelopes.size(); i++) {
 
                 int cases = envelopeCases.get(i);
-//                System.out.println("case " + cases);
+                System.out.println("case " + cases);
                 switch (cases) {
                     case 0:
                         //right
@@ -337,7 +294,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
                             double rightBound = randomDouble(maxX, 180.0);
                             minX_ = randomDouble(leftBound, rightBound);
-                            minX = minX_;
+                            if (minX_ < minX) {
+                                minX = minX_;
+                            }
                             maxXSoFar = maxX;
                         }
                         break;
@@ -348,7 +307,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(-180, ((-180 - minX) / 2));
                             double rightBound = randomDouble(((-180 - minX) / 2), minX);
                             maxX_ = randomDouble(leftBound, rightBound);
-                            maxX = maxX_;
+                            if (maxX_ > maxX) {
+                                maxX = maxX_;
+                            }
                             minXSoFar = minX;
                         }
                         break;
@@ -359,7 +320,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
                             double rightBound = randomDouble(maxY, 90.0);
                             minY_ = randomDouble(leftBound, rightBound);
-                            minY = minY_;
+                            if (minY_ < minY) {
+                                minY = minY_;
+                            }
                             maxYSoFar = maxY;
                         }
                         break;
@@ -370,7 +333,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(-90, ((-90 - minY) / 2));
                             double rightBound = randomDouble(((-90 - minY) / 2), minY);
                             maxY_ = randomDouble(leftBound, rightBound);
-                            maxY = maxY_;
+                            if (maxY_ > maxY) {
+                                maxY = maxY_;
+                            }
                             minYSoFar = minY;
                         }
                         break;
@@ -386,6 +351,8 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 rollBack = false;
                 disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
             }
+
+            System.out.println("disjointEnv " + disjointEnv);
             //also check if the return envelope is null ? 
         }
         return disjointEnv;
