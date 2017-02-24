@@ -131,7 +131,12 @@ public abstract class GeometryType {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate[] coord = geo.getCoordinates();
         int chunk = geo.getCoordinates().length / parts;
-//        System.out.println("chunk " +chunk);
+        if(chunk < 2){chunk = 2;} //this is when the geometry is a linestring
+        //the other geometries have more restrictions! 
+        //TODO solve this
+        System.out.println("geo.getCoordinates().length " +geo.getCoordinates().length);
+        System.out.println("parts " +parts);
+        System.out.println("chunk " +chunk);
         Coordinate[][] chunckedArray = chunkArray(coord, chunk);
         
         ArrayList<Envelope> envelopes = new ArrayList<Envelope>();
@@ -139,12 +144,13 @@ public abstract class GeometryType {
         for (int i = 0; i < chunckedArray.length; i++) {
             Coordinate[] coordTemp = new Coordinate[chunckedArray[i].length];
             System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
+            System.out.println(" coordTemp "  +Arrays.toString(coordTemp));
             switch (geo.getGeometryType()) {
                 case "MultiPoint":
                     break;
                 case "LineString":
                     LineString line =  geometryFactory.createLineString(coordTemp);
-//                    System.out.println("line " + line);
+                    System.out.println("line " + line);
                     envelopes.add(line.getEnvelopeInternal());
                     break;
                 case "LinearRing":
