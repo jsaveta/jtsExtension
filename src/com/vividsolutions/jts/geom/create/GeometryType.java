@@ -6,6 +6,8 @@
 package com.vividsolutions.jts.geom.create;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -15,6 +17,13 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -55,12 +64,13 @@ public abstract class GeometryType {
         return null;
     }
 
-
     /**
-     * Cut an array of Coordinates into multiple arrays. Each array has the first
-     * point common with the last point of the previous array
-     * @param array array of Coordinates 
-     * @param chunkSize defines how many instances of coordinates will be in each smaller array
+     * Cut an array of Coordinates into multiple arrays. Each array has the
+     * first point common with the last point of the previous array
+     *
+     * @param array array of Coordinates
+     * @param chunkSize defines how many instances of coordinates will be in
+     * each smaller array
      * @return array of Coordinate array
      */
     protected static Coordinate[][] chunkArray(Coordinate[] array, int chunkSize) {
@@ -82,9 +92,11 @@ public abstract class GeometryType {
         }
         return output;
     }
+//https://joinup.ec.europa.eu/svn/gvsig-desktop/trunk/libraries/libTopology/src/org/gvsig/jts/LineStringSplitter.java
 
     /**
      * Cut a LineString into smaller LineStrings
+     *
      * @param line the input LineString
      * @param chunk the number of Coordinates of each smaller line
      * @return a Linestring[] of the smaller LineString
@@ -101,5 +113,56 @@ public abstract class GeometryType {
             lineArray[i] = geometryFactory.createLineString(coordTemp);
         }
         return lineArray;
+    }
+
+    public <T> T[] concatenate(T[] a, T[] b) {
+        int aLen = a.length;
+        int bLen = b.length;
+
+        @SuppressWarnings("unchecked")
+        T[] c = (T[]) Array.newInstance(a.getClass().getComponentType(), aLen + bLen);
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+
+        return c;
+    }
+
+    public ArrayList<Envelope> cutGeometryEnvelope(Geometry geo, int parts) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate[] coord = geo.getCoordinates();
+        int chunk = geo.getCoordinates().length / parts;
+//        System.out.println("chunk " +chunk);
+        Coordinate[][] chunckedArray = chunkArray(coord, chunk);
+        
+        ArrayList<Envelope> envelopes = new ArrayList<Envelope>();
+        
+        for (int i = 0; i < chunckedArray.length; i++) {
+            Coordinate[] coordTemp = new Coordinate[chunckedArray[i].length];
+            System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
+            switch (geo.getGeometryType()) {
+                case "MultiPoint":
+                    break;
+                case "LineString":
+                    LineString line =  geometryFactory.createLineString(coordTemp);
+//                    System.out.println("line " + line);
+                    envelopes.add(line.getEnvelopeInternal());
+                    break;
+                case "LinearRing":
+                    break;
+                case "MultiLineString":
+                    break;
+                case "Polygon":
+                    break;
+                case "MultiPolygon":
+                    break;
+                case "GeometryCollection":
+                    break;
+            }
+
+        }
+//        System.out.println("coord  " + Arrays.toString(coord));
+//        System.out.println("envelopes " + envelopes);
+        return envelopes;
+        
     }
 }
