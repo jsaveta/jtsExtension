@@ -40,12 +40,13 @@ public class CreateDisjointGeometryObjectTest extends TestCase {
 //        LineString line = (LineString) reader.read("LINESTRING ( 180 90, -3 -3, -3 -4, -180 -90)");
         CreateDisjointGeometryObject instanceL1 = new CreateDisjointGeometryObject(line, GeometryType.GeometryTypes.LineString);
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100000; i++) {
             Geometry resultL1 = instanceL1.generateGeometry();
-            System.out.println("given: " + line);
-            System.out.println("result: " + resultL1);
-
-            System.out.println("line disjoint result: " + line.disjoint(resultL1));
+            System.out.println("i: " + i);
+//            System.out.println("given: " + line);
+//            System.out.println("result: " + resultL1);
+//
+//            System.out.println("line disjoint result: " + line.disjoint(resultL1));
             assertTrue(line.disjoint(resultL1));
         }
     }
