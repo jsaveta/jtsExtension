@@ -253,10 +253,14 @@ public class CreateDisjointGeometryObject extends GeometryType {
         return this.returned;
     }
 
-    protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
+        protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
         Envelope disjointEnv = null;
-        System.out.println("env " + geo.getEnvelopeInternal());
-        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
+
+        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);        
+        double minX_ = -180d;
+        double maxX_ = 180d;
+        double minY_ = -90;
+        double maxY_ = 90d;
 
         double maxXSoFar = envelopes.get(0).getMinX();
         double minXSoFar = envelopes.get(0).getMaxX();
@@ -267,13 +271,10 @@ public class CreateDisjointGeometryObject extends GeometryType {
         double maxX = envelopes.get(0).getMaxX();
         double minY = envelopes.get(0).getMinY();
         double maxY = envelopes.get(0).getMaxY();
-
-        double minX_ = -180d;
-        double maxX_ = 180d;
-        double minY_ = -90;
-        double maxY_ = 90d;
+        
         Map<Integer, Integer> envelopeCases;
         Random coin = new Random();
+        
 
         boolean rollBack = true;
         while (rollBack) {
@@ -281,11 +282,11 @@ public class CreateDisjointGeometryObject extends GeometryType {
             for (int i = 0; i < envelopes.size(); i++) {
                 envelopeCases.put(i, coin.nextInt(4));
             }
-            System.out.println("map " + envelopeCases.toString());
+            //System.out.println("map " + envelopeCases.toString());
             for (int i = 0; i < envelopes.size(); i++) {
 
                 int cases = envelopeCases.get(i);
-                System.out.println("case " + cases);
+//                System.out.println("case " + cases);
                 switch (cases) {
                     case 0:
                         //right
@@ -294,9 +295,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
                             double rightBound = randomDouble(maxX, 180.0);
                             minX_ = randomDouble(leftBound, rightBound);
-                            if (minX_ < minX) {
-                                minX = minX_;
-                            }
+                            minX = minX_;
                             maxXSoFar = maxX;
                         }
                         break;
@@ -307,9 +306,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(-180, ((-180 - minX) / 2));
                             double rightBound = randomDouble(((-180 - minX) / 2), minX);
                             maxX_ = randomDouble(leftBound, rightBound);
-                            if (maxX_ > maxX) {
-                                maxX = maxX_;
-                            }
+                            maxX = maxX_;
                             minXSoFar = minX;
                         }
                         break;
@@ -320,9 +317,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
                             double rightBound = randomDouble(maxY, 90.0);
                             minY_ = randomDouble(leftBound, rightBound);
-                            if (minY_ < minY) {
-                                minY = minY_;
-                            }
+                            minY = minY_;
                             maxYSoFar = maxY;
                         }
                         break;
@@ -333,9 +328,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
                             double leftBound = randomDouble(-90, ((-90 - minY) / 2));
                             double rightBound = randomDouble(((-90 - minY) / 2), minY);
                             maxY_ = randomDouble(leftBound, rightBound);
-                            if (maxY_ > maxY) {
-                                maxY = maxY_;
-                            }
+                            maxY = maxY_;
                             minYSoFar = minY;
                         }
                         break;
@@ -351,8 +344,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 rollBack = false;
                 disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
             }
-
-            System.out.println("disjointEnv " + disjointEnv);
             //also check if the return envelope is null ? 
         }
         return disjointEnv;
