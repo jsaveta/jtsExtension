@@ -270,13 +270,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
         boolean rollBack = true;
         while (rollBack) {
-            envelopeCases = new HashMap<Integer, Integer>();
-            for (int i = 0; i < envelopes.size(); i++) {
-                envelopeCases.put(i, coin.nextInt(4));
-            }
-            //System.out.println("map " + envelopeCases.toString());
-
-            //TODO: check if you are on the boundaries! 
             for (int i = 0; i < envelopes.size(); i++) {
                 double minX = envelopes.get(i).getMinX();
                 double maxX = envelopes.get(i).getMaxX();
@@ -292,40 +285,60 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 double rightBound = 0d;
                 double upBound = 0d;
                 double downBound = 0d;
-                int cases = envelopeCases.get(i);
+                int cases = coin.nextInt(4);
                 System.out.println("case " + cases);
                 switch (cases) {
                     case 0:
                         //right
-                        System.out.println("minX' > maxX");
-                        leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
-                        rightBound = randomDouble(maxX, 180.0);
-                        minX_ = leftBound;
-                        maxX_ = rightBound;
+                        if (maxX < 180) { //check if on boundary
+                            System.out.println("minX' > maxX");
+                            leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
+                            rightBound = randomDouble(maxX, 180.0);
+                            minX_ = leftBound;
+                            maxX_ = rightBound;
+                        }
+                        else {
+                            i--;
+                        }
                         break;
                     case 1:
                         //left
-                        System.out.println("maxX' < minX");
-                        leftBound = randomDouble(-180, ((-180 - minX) / 2));
-                        rightBound = randomDouble(((-180 - minX) / 2), minX);
-                        maxX_ = leftBound;
-                        minX_ = rightBound;
+                        if (minX > -180) { //check if on boundary
+                            System.out.println("maxX' < minX");
+                            leftBound = randomDouble(-180, ((-180 - minX) / 2));
+                            rightBound = randomDouble(((-180 - minX) / 2), minX);
+                            maxX_ = leftBound;
+                            minX_ = rightBound;
+                        }
+                        else {
+                            i--;
+                        }
                         break;
                     case 2:
                         //up
-                        System.out.println("minY' > maxY");
-                        downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
-                        upBound = randomDouble(maxY, 90.0);
-                        minY_ = downBound;
-                        maxY_ = upBound;
+                        if (maxY < 90) { //check if on boundary
+                            System.out.println("minY' > maxY");
+                            downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
+                            upBound = randomDouble(maxY, 90.0);
+                            minY_ = downBound;
+                            maxY_ = upBound;
+                        }
+                        else {
+                            i--;
+                        }
                         break;
                     case 3:
                         //down
-                        System.out.println("maxY' < minY");
-                        upBound = randomDouble(-90, ((-90 - minY) / 2));
-                        downBound = randomDouble(((-90 - minY) / 2), minY);
-                        minY_ = upBound;
-                        maxY_ = downBound;
+                        if (minY > -90) {
+                            System.out.println("maxY' < minY"); //check if on boundary
+                            upBound = randomDouble(-90, ((-90 - minY) / 2));
+                            downBound = randomDouble(((-90 - minY) / 2), minY);
+                            minY_ = upBound;
+                            maxY_ = downBound;
+                        }
+                        else {
+                            i--;
+                        }
                         break;
 
                 }
