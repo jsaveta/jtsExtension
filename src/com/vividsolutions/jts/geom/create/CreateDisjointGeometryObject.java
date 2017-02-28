@@ -253,28 +253,20 @@ public class CreateDisjointGeometryObject extends GeometryType {
         return this.returned;
     }
 
-        protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
+    protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
         Envelope disjointEnv = null;
+        Envelope env = geo.getEnvelopeInternal();
+        System.out.println("env " + env);
+        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
 
-        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);        
-        double minX_ = -180d;
-        double maxX_ = 180d;
-        double minY_ = -90;
-        double maxY_ = 90d;
-
-        double maxXSoFar = envelopes.get(0).getMinX();
-        double minXSoFar = envelopes.get(0).getMaxX();
-        double maxYSoFar = envelopes.get(0).getMinY();
-        double minYSoFar = envelopes.get(0).getMaxY();
-
-        double minX = envelopes.get(0).getMinX();
-        double maxX = envelopes.get(0).getMaxX();
-        double minY = envelopes.get(0).getMinY();
-        double maxY = envelopes.get(0).getMaxY();
-        
+        System.out.println("envelopes " + envelopes);
         Map<Integer, Integer> envelopeCases;
         Random coin = new Random();
-        
+
+        double minX_ = envelopes.get(0).getMinX();
+        double maxX_ = envelopes.get(0).getMaxX();
+        double minY_ = envelopes.get(0).getMinY();
+        double maxY_ = envelopes.get(0).getMaxY();
 
         boolean rollBack = true;
         while (rollBack) {
@@ -283,54 +275,57 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 envelopeCases.put(i, coin.nextInt(4));
             }
             //System.out.println("map " + envelopeCases.toString());
-            for (int i = 0; i < envelopes.size(); i++) {
 
+            //TODO: check if you are on the boundaries! 
+            for (int i = 0; i < envelopes.size(); i++) {
+                double minX = envelopes.get(i).getMinX();
+                double maxX = envelopes.get(i).getMaxX();
+                double minY = envelopes.get(i).getMinY();
+                double maxY = envelopes.get(i).getMaxY();
+
+                minX_ = minX;
+                maxX_ = maxX;
+                minY_ = minY;
+                maxY_ = maxY;
+
+                double leftBound = 0d;
+                double rightBound = 0d;
+                double upBound = 0d;
+                double downBound = 0d;
                 int cases = envelopeCases.get(i);
-//                System.out.println("case " + cases);
+                System.out.println("case " + cases);
                 switch (cases) {
                     case 0:
                         //right
                         System.out.println("minX' > maxX");
-                        if (maxXSoFar < maxX) {
-                            double leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
-                            double rightBound = randomDouble(maxX, 180.0);
-                            minX_ = randomDouble(leftBound, rightBound);
-                            minX = minX_;
-                            maxXSoFar = maxX;
-                        }
+                        leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
+                        rightBound = randomDouble(maxX, 180.0);
+                        minX_ = leftBound;
+                        maxX_ = rightBound;
                         break;
                     case 1:
                         //left
                         System.out.println("maxX' < minX");
-                        if (minXSoFar > minX) {
-                            double leftBound = randomDouble(-180, ((-180 - minX) / 2));
-                            double rightBound = randomDouble(((-180 - minX) / 2), minX);
-                            maxX_ = randomDouble(leftBound, rightBound);
-                            maxX = maxX_;
-                            minXSoFar = minX;
-                        }
+                        leftBound = randomDouble(-180, ((-180 - minX) / 2));
+                        rightBound = randomDouble(((-180 - minX) / 2), minX);
+                        maxX_ = leftBound;
+                        minX_ = rightBound;
                         break;
                     case 2:
                         //up
                         System.out.println("minY' > maxY");
-                        if (maxYSoFar < maxY) {
-                            double leftBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
-                            double rightBound = randomDouble(maxY, 90.0);
-                            minY_ = randomDouble(leftBound, rightBound);
-                            minY = minY_;
-                            maxYSoFar = maxY;
-                        }
+                        downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
+                        upBound = randomDouble(maxY, 90.0);
+                        minY_ = downBound;
+                        maxY_ = upBound;
                         break;
                     case 3:
                         //down
                         System.out.println("maxY' < minY");
-                        if (minYSoFar > minY) {
-                            double leftBound = randomDouble(-90, ((-90 - minY) / 2));
-                            double rightBound = randomDouble(((-90 - minY) / 2), minY);
-                            maxY_ = randomDouble(leftBound, rightBound);
-                            maxY = maxY_;
-                            minYSoFar = minY;
-                        }
+                        upBound = randomDouble(-90, ((-90 - minY) / 2));
+                        downBound = randomDouble(((-90 - minY) / 2), minY);
+                        minY_ = upBound;
+                        maxY_ = downBound;
                         break;
 
                 }
@@ -344,8 +339,10 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 rollBack = false;
                 disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
             }
-            //also check if the return envelope is null ? 
+            System.out.println("disjointEnv " + disjointEnv);
+//            also check if the return envelope is null ? 
         }
+
         return disjointEnv;
     }
 
