@@ -108,12 +108,8 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
                         Random rn = new Random();
                         int parts = rn.nextInt(1);
-
                         Envelope disjEnv = generateDisjointEnvelope(lineString, 3); //parts instead of 3
 
-//                        System.out.println("null? " + disjEnv.isNull());
-//                        System.out.println("disjEnv " + disjEnv);
-//                        System.out.println("intersect? " + env.intersects(disjEnv));
                         if (!disjEnv.isNull()) {
                             pg.setBoundingBox(disjEnv);
                             LineString pt = (LineString) pg.create();
