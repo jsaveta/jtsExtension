@@ -255,12 +255,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
     protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
         Envelope disjointEnv = null;
-        Envelope env = geo.getEnvelopeInternal();
-        System.out.println("env " + env);
         ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
-
-        System.out.println("envelopes " + envelopes);
-        Map<Integer, Integer> envelopeCases;
         Random coin = new Random();
 
         double minX_ = envelopes.get(0).getMinX();
@@ -286,74 +281,63 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 double upBound = 0d;
                 double downBound = 0d;
                 int cases = coin.nextInt(4);
-                System.out.println("case " + cases);
                 switch (cases) {
                     case 0:
                         //right
                         if (maxX < 180) { //check if on boundary
-                            System.out.println("minX' > maxX");
+//                            System.out.println("minX' > maxX");
                             leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
                             rightBound = randomDouble(maxX, 180.0);
                             minX_ = leftBound;
                             maxX_ = rightBound;
-                        }
-                        else {
+                        } else {
                             i--;
                         }
                         break;
                     case 1:
                         //left
                         if (minX > -180) { //check if on boundary
-                            System.out.println("maxX' < minX");
+//                            System.out.println("maxX' < minX");
                             leftBound = randomDouble(-180, ((-180 - minX) / 2));
                             rightBound = randomDouble(((-180 - minX) / 2), minX);
                             maxX_ = leftBound;
                             minX_ = rightBound;
-                        }
-                        else {
+                        } else {
                             i--;
                         }
                         break;
                     case 2:
                         //up
                         if (maxY < 90) { //check if on boundary
-                            System.out.println("minY' > maxY");
+//                            System.out.println("minY' > maxY");
                             downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
                             upBound = randomDouble(maxY, 90.0);
                             minY_ = downBound;
                             maxY_ = upBound;
-                        }
-                        else {
+                        } else {
                             i--;
                         }
                         break;
                     case 3:
                         //down
-                        if (minY > -90) {
-                            System.out.println("maxY' < minY"); //check if on boundary
+                        if (minY > -90) { //check if on boundary
+//                            System.out.println("maxY' < minY"); 
                             upBound = randomDouble(-90, ((-90 - minY) / 2));
                             downBound = randomDouble(((-90 - minY) / 2), minY);
                             minY_ = upBound;
                             maxY_ = downBound;
-                        }
-                        else {
+                        } else {
                             i--;
                         }
                         break;
 
                 }
-                System.out.println("minX_ " + minX_);
-                System.out.println("maxX_ " + maxX_);
-                System.out.println("minY_ " + minY_);
-                System.out.println("maxY_ " + maxY_);
             }
 
             if (minX_ <= maxX_ && minY_ <= maxY_) {
                 rollBack = false;
                 disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
             }
-            System.out.println("disjointEnv " + disjointEnv);
-//            also check if the return envelope is null ? 
         }
 
         return disjointEnv;
