@@ -130,7 +130,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         pg.setNumberPoints(coordsToGenerate);
                         Coordinate[] coords;
 
-                        int cases = 2;//coin.nextInt(2); //coin.nextInt(3);
+                        int cases = 0;//coin.nextInt(2); //coin.nextInt(3);
                         System.out.println("BB BI IB " + cases);
                         switch (cases) {
                             //BB
@@ -169,43 +169,26 @@ public class CreateTouchesGeometryObject extends GeometryType {
                             case 2:
                                 Coordinate[] lineCoord = lineString.getCoordinates();
                                 Coordinate[] internal = new Coordinate[1];
-//                                Coordinate extraCoord = null;
-                                internal[0] = lineCoord[coin.nextInt(lineCoord.length)];
+                                //check this
+                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 1];
                                 System.out.println("internal[0] " + internal[0]);
                                 Envelope touches = generateTouchesEnvelope(lineString, internal[0]);
                                 pg.setBoundingBox(touches);
 
                                 LineString pt_2 = (LineString) pg.create();
                                 Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
-//                                if (side == 0) { //rightDownEnv
-////                                    extraCoord = new Coordinate(touches.getMaxX(), touches.getMinY());
-//                                    extraCoord = new Coordinate(internal[0].x + 0.005, internal[0].y - 0.005);
+                                int ord = coin.nextInt(2);
+//                                if (internal[0].x == touches.getMinX()) {
+//                                    ord = 0;
+//                                } else {
+//                                    ord = 1;
 //                                }
-//                                if (side == 1) { //rightUpEnv
-////                                    extraCoord = new Coordinate(touches.getMaxX(), touches.getMaxY());
-//                                    extraCoord = new Coordinate(internal[0].x + 0.005, internal[0].y + 0.005);
-//                                }
-//                                if (side == 2) { //leftDownEnv
-////                                    extraCoord = new Coordinate(touches.getMinX(), touches.getMinY());
-//                                    extraCoord = new Coordinate(internal[0].x - 0.005, internal[0].y - 0.005);
-//                                }
-//                                if (side == 3) { //leftUpEnv
-////                                    extraCoord = new Coordinate(touches.getMinX(), touches.getMaxY());
-//                                    extraCoord = new Coordinate(internal[0].x - 0.005, internal[0].y + 0.005);
-//                                }
-//                                System.out.println("extraCoord " + extraCoord);
-                                int ord = 1;//coin.nextInt(2);
                                 switch (ord) {
                                     case 0:
-                                        //internal[0] = lineCoord[coin.nextInt(lineCoord.length)];
-//                                        internal[1] = extraCoord;
-
                                         coords = concatenate(internal, generatedCoords_2);
                                         this.returned = geometryFactory.createLineString(coords);
                                         break;
                                     case 1:
-//                                        internal[1] = internal[0];
-//                                        internal[0] = extraCoord;
                                         coords = concatenate(generatedCoords_2, internal);
                                         this.returned = geometryFactory.createLineString(coords);
                                         break;
@@ -353,8 +336,6 @@ public class CreateTouchesGeometryObject extends GeometryType {
         double coordX = touchCoord.x;
         double coordY = touchCoord.y;
 
-//        boolean rollBack = true;
-//        while (rollBack) {
         double minX = env.getMinX();
         double maxX = env.getMaxX();
         double minY = env.getMinY();
@@ -390,7 +371,6 @@ public class CreateTouchesGeometryObject extends GeometryType {
         Random coin = new Random();
         if (cases.size() > 0) {
             int c = coin.nextInt(cases.size());
-            System.out.println("cases.get(c) " + cases.get(c));
             switch (cases.get(c)) {
                 case 0:
                     //right
@@ -435,14 +415,10 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             }
 
-//                if (minX_ <= maxX_ && minY_ <= maxY_) {
-//                    rollBack = false;
             touchesEnv = new Envelope(minX_, maxX_, minY_, maxY_);
-//                }
+
         } else {
             //here cut the boundary boxes
-            System.out.println("den eimai akri");
-            //kopse prota 2 meta 3 ktl mexri na ginei akri
 
             List<Double> minXes = new ArrayList<Double>();
             List<Double> maxXes = new ArrayList<Double>();
@@ -463,17 +439,15 @@ public class CreateTouchesGeometryObject extends GeometryType {
             Collections.sort(minYes);
             Collections.sort(maxYes);
 
-            System.out.println("minXes " + minXes);
-            System.out.println("maxXes " + maxXes);
-            System.out.println("minYes " + minYes);
-            System.out.println("maxYes " + maxYes);
-
+            double e = 0.01;
             //down + right
-            minX_ = coordX;
+//            System.out.println("down + right");
+            minX_ = coordX + e;
+            maxY_ = coordY - e;
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
-                    maxX_ = minXes.get(j);
+                    maxX_ = minXes.get(j) - e;
                     break;
                 } else {
                     maxX_ = 180;
@@ -482,22 +456,22 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
-                    minY_ = maxYes.get(j);
+                    minY_ = maxYes.get(j) + e;
                 } else {
                     minY_ = -90;
                 }
             }
-            maxY_ = coordY;
 
             Envelope rightDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + right
-            minX_ = coordX;
-            minY_ = coordY;
+//            System.out.println("up + right");
+            minX_ = coordX + e;
+            minY_ = coordY + e;
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
-                    maxX_ = minXes.get(j);
+                    maxX_ = minXes.get(j) - e;
                     break;
                 } else {
                     maxX_ = 180;
@@ -506,7 +480,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             for (int j = 0; j < minYes.size(); j++) {
                 if (coordY < minYes.get(j)) {
-                    maxY_ = minYes.get(j);
+                    maxY_ = minYes.get(j) - e;
                     break;
                 } else {
                     maxY_ = 90;
@@ -516,11 +490,12 @@ public class CreateTouchesGeometryObject extends GeometryType {
             Envelope rightUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //down + left
-            maxX_ = coordX;
-            maxY_ = coordY;
+//            System.out.println("down + left");
+            maxX_ = coordX - e;
+            maxY_ = coordY - e;
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
-                    minX_ = maxXes.get(j);
+                    minX_ = maxXes.get(j) + e;
                 } else {
                     minX_ = -180;
                 }
@@ -528,7 +503,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
-                    minY_ = maxYes.get(j);
+                    minY_ = maxYes.get(j) + e;
                 } else {
                     minY_ = -90;
                 }
@@ -537,11 +512,12 @@ public class CreateTouchesGeometryObject extends GeometryType {
             Envelope leftDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + left
-            maxX_ = coordX;
-            minY_ = coordY;
+//            System.out.println("up + left");
+            maxX_ = coordX - e;
+            minY_ = coordY + e;
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
-                    minX_ = maxXes.get(j);
+                    minX_ = maxXes.get(j) + e;
                 } else {
                     minX_ = -180;
                 }
@@ -549,7 +525,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             for (int j = 0; j < minYes.size(); j++) {
                 if (coordY < minYes.get(j)) {
-                    maxY_ = minYes.get(j);
+                    maxY_ = minYes.get(j) - e;
                     break;
                 } else {
                     maxY_ = 90;
@@ -558,75 +534,53 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             Envelope leftUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
-//            System.out.println("rightDownEnv " + rightDownEnv);
-//            System.out.println("rightUpEnv " + rightUpEnv);
-//            System.out.println("leftDownEnv " + leftDownEnv);
-//            System.out.println("leftUpEnv " + leftUpEnv);
-//
-//            for (Envelope envelope : envelopes) {
-//                System.out.println("envelope " + envelope);
-//                System.out.println("inters rightDownEnv " + rightDownEnv.intersects(envelope));
-//                System.out.println("inters rightUpEnv " + rightUpEnv.intersects(envelope));
-//                System.out.println("inters leftDownEnv " + leftDownEnv.intersects(envelope));
-//                System.out.println("inters leftUpEnv " + leftUpEnv.intersects(envelope));
-//
-//            }
             //if only intersects with the touchCoord
-            for (Coordinate coordinate : geo.getCoordinates()) {
+            for (Envelope envelope : envelopes) {
 
-                if (coordinate != touchCoord) {
-                    if (rightDownEnv != null && rightDownEnv.intersects(coordinate)) {
+                if (rightDownEnv != null && rightDownEnv.intersects(envelope)) {
 //                        System.out.println("rightDownEnv intersects with " + coordinate + " ? " + rightDownEnv.intersects(coordinate));
-                        rightDownEnv = null;
-                    }
-                    if (rightUpEnv != null && rightUpEnv.intersects(coordinate)) {
+                    rightDownEnv = null;
+                }
+                if (rightUpEnv != null && rightUpEnv.intersects(envelope)) {
 //                        System.out.println("rightUpEnv intersects with " + coordinate + " ? " + rightUpEnv.intersects(coordinate));
-                        rightUpEnv = null;
-                    }
+                    rightUpEnv = null;
+                }
 
-                    if (leftDownEnv != null && leftDownEnv.intersects(coordinate)) {
+                if (leftDownEnv != null && leftDownEnv.intersects(envelope)) {
 //                        System.out.println("leftDownEnv intersects with " + coordinate + " ? " + leftDownEnv.intersects(coordinate));
-                        leftDownEnv = null;
-                    }
+                    leftDownEnv = null;
+                }
 
-                    if (leftUpEnv != null && leftUpEnv.intersects(coordinate)) {
+                if (leftUpEnv != null && leftUpEnv.intersects(envelope)) {
 //                        System.out.println("leftUpEnv intersects with " + coordinate + " ? " + leftUpEnv.intersects(coordinate));
-                        leftUpEnv = null;
-                    }
+                    leftUpEnv = null;
                 }
             }
 
-            Map<Integer, Envelope> move = new HashMap<Integer, Envelope>();
+            //make move an arraylist again
+            ArrayList<Envelope> move = new ArrayList<Envelope>();
             if (rightDownEnv != null) {
-                move.put(0, rightDownEnv);
+                move.add(rightDownEnv);
             }
 
             if (rightUpEnv != null) {
-                move.put(1, rightUpEnv);
+                move.add(rightUpEnv);
             }
 
             if (leftDownEnv != null) {
-                move.put(2, leftDownEnv);
+                move.add(leftDownEnv);
             }
             if (leftUpEnv != null) {
-                move.put(3, leftUpEnv);
+                move.add(leftUpEnv);
             }
 
             if (!move.isEmpty()) {
+                int element = coin.nextInt(move.size());
+                touchesEnv = move.get(element);
 
-                List<Integer> keysAsArray = new ArrayList<Integer>(move.keySet());
-                int element = coin.nextInt(keysAsArray.size());
-                side = keysAsArray.get(element);
-                touchesEnv = move.get(side);
-
-//                int t = coin.nextInt(move.size());
-//                touchesEnv = move.get(t);
-//                side = 
             }
-
             System.out.println("move " + move.toString());
         }
-//        }
 
         System.out.println("touchesEnv " + touchesEnv);
         return touchesEnv;
