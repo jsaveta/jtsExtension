@@ -17,11 +17,7 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -105,7 +101,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         pg.setNumberPoints(lineString.getCoordinates().length);
-
+                        //TODO: check Too few points for Arc exception
                         Random rn = new Random();
                         int parts = rn.nextInt(1);
                         Envelope disjEnv = generateDisjointEnvelope(lineString, 3); //parts instead of 3
@@ -294,8 +290,11 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         //left
                         if (minX > -180) { //check if on boundary
 //                            System.out.println("maxX' < minX");
-                            leftBound = randomDouble(-180, ((-180 - minX) / 2));
-                            rightBound = randomDouble(((-180 - minX) / 2), minX);
+//                            leftBound = randomDouble(-180, ((-180 - minX) / 2));
+//                            rightBound = randomDouble(((-180 - minX) / 2), minX);
+                            //check boundaries below
+                            leftBound = randomDouble(-180, -180 - ((-180 - minX) / 2));
+                            rightBound = randomDouble(-180 - ((-180 - minX) / 2), minX);
                             maxX_ = leftBound;
                             minX_ = rightBound;
                         } else {
@@ -318,8 +317,11 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         //down
                         if (minY > -90) { //check if on boundary
 //                            System.out.println("maxY' < minY"); 
-                            upBound = randomDouble(-90, ((-90 - minY) / 2));
-                            downBound = randomDouble(((-90 - minY) / 2), minY);
+//                            upBound = randomDouble(-90, ((-90 - minY) / 2));
+//                            downBound = randomDouble(((-90 - minY) / 2), minY);
+
+                            upBound = randomDouble(-90, -90 - ((-90 - minY) / 2));
+                            downBound = randomDouble(-90 - ((-90 - minY) / 2), minY);
                             minY_ = upBound;
                             maxY_ = downBound;
                         } else {
@@ -335,13 +337,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
             }
         }
-
         return disjointEnv;
-    }
-
-    protected double randomDouble(double start, double end) {
-        double random = new Random().nextDouble();
-        double randDouble = start + (random * (end - start));
-        return randDouble;
     }
 }
