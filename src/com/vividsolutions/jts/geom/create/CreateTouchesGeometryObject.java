@@ -178,11 +178,6 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 LineString pt_2 = (LineString) pg.create();
                                 Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
                                 int ord = coin.nextInt(2);
-//                                if (internal[0].x == touches.getMinX()) {
-//                                    ord = 0;
-//                                } else {
-//                                    ord = 1;
-//                                }
                                 switch (ord) {
                                     case 0:
                                         coords = concatenate(internal, generatedCoords_2);
