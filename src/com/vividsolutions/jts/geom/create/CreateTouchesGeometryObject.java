@@ -20,9 +20,7 @@ import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 /**
@@ -105,21 +103,28 @@ public class CreateTouchesGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-
                         Random coin = new Random();
-                        Geometry bound = lineString.getBoundary();
-                        Coordinate boundCoords[] = bound.getCoordinates();
+                        Envelope touchesEnv = null;
+                        Coordinate[] selectedBoundCoord = null;
+                        Coordinate[] internal = new Coordinate[1];
+                        int cases = 1;
+                        while (touchesEnv == null) {
+                            cases = coin.nextInt(3);
+                            if (cases == 2) {
+                                Coordinate[] lineCoord = lineString.getCoordinates();
+                                //check this
+                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 1];
+                                touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
+                            } else {
+                                Geometry bound = lineString.getBoundary();
+                                Coordinate boundCoords[] = bound.getCoordinates();
+                                selectedBoundCoord = new Coordinate[1];
+                                selectedBoundCoord[0] = boundCoords[coin.nextInt(boundCoords.length)];
+                                touchesEnv = generateTouchesEnvelope(lineString, selectedBoundCoord[0]);
+                            }
+                        }
 
-                        System.out.println("boundCoords " + Arrays.toString(boundCoords));
-
-                        //keep more than one boundaries?
-                        //ta shuffle xalane auto pou dinetai 
-                        Coordinate[] selectedBoundCoord = new Coordinate[1];
-
-                        selectedBoundCoord[0] = boundCoords[coin.nextInt(boundCoords.length)];
-                        System.out.println("selectedBoundCoord[0] " + selectedBoundCoord[0]);
-
-                        int coordsToGenerate = lineString.getNumPoints() - 1; //boundCoords.length;
+                        int coordsToGenerate = lineString.getNumPoints() - 1;
                         if (coordsToGenerate < 2) {
                             coordsToGenerate = 2;
                         }
@@ -130,13 +135,11 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         pg.setNumberPoints(coordsToGenerate);
                         Coordinate[] coords;
 
-                        int cases = 0;//coin.nextInt(2); //coin.nextInt(3);
-                        System.out.println("BB BI IB " + cases);
                         switch (cases) {
                             //BB
                             case 0:
 
-                                pg.setBoundingBox(generateTouchesEnvelope(lineString, selectedBoundCoord[0]));
+                                pg.setBoundingBox(touchesEnv);
                                 LineString pt_0 = (LineString) pg.create();
                                 Coordinate[] generatedCoords_0 = pt_0.getCoordinates();
 
@@ -155,7 +158,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 break;
                             //BI
                             case 1:
-                                pg.setBoundingBox(generateTouchesEnvelope(lineString, selectedBoundCoord[0]));
+                                pg.setBoundingBox(touchesEnv);
 
                                 LineString pt_1 = (LineString) pg.create();
                                 Coordinate[] generatedCoords_1 = pt_1.getCoordinates();
@@ -167,14 +170,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
                             //IB
                             case 2:
-                                Coordinate[] lineCoord = lineString.getCoordinates();
-                                Coordinate[] internal = new Coordinate[1];
-                                //check this
-                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 1];
-                                System.out.println("internal[0] " + internal[0]);
-                                Envelope touches = generateTouchesEnvelope(lineString, internal[0]);
-                                pg.setBoundingBox(touches);
-
+                                pg.setBoundingBox(touchesEnv);
                                 LineString pt_2 = (LineString) pg.create();
                                 Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
                                 int ord = coin.nextInt(2);
@@ -327,7 +323,6 @@ public class CreateTouchesGeometryObject extends GeometryType {
     protected Envelope generateTouchesEnvelope(Geometry geo, Coordinate touchCoord) {
         Envelope touchesEnv = null;
         Envelope env = geo.getEnvelopeInternal();
-
         double coordX = touchCoord.x;
         double coordY = touchCoord.y;
 
@@ -349,63 +344,54 @@ public class CreateTouchesGeometryObject extends GeometryType {
         //if touchCoord has a x or y that is the minimum or maximm of all
         ArrayList<Integer> cases = new ArrayList<Integer>();
         //e.g. if coordX is the maximum, then we can keep the right boundary
-        if (coordX == maxX) { //right
+        if (coordX == maxX && maxX < 180) { //right
             cases.add(0);
         }
-        if (coordX == minX) { //left
+        if (coordX == minX && minX > -180) { //left
             cases.add(1);
         }
 
-        if (coordY == maxY) { //up
+        if (coordY == maxY && maxY < 90) { //up
             cases.add(2);
         }
-        if (coordY == minY) { //down
+        if (coordY == minY && minY > -90) { //down
             cases.add(3);
         }
-
         Random coin = new Random();
         if (cases.size() > 0) {
             int c = coin.nextInt(cases.size());
             switch (cases.get(c)) {
                 case 0:
                     //right
-                    if (maxX < 180) { //check if on boundary
-                        //System.out.println("minX' > maxX");
-                        leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
-                        rightBound = randomDouble(maxX, 180.0);
-                        minX_ = leftBound;
-                        maxX_ = rightBound;
-                    }
+                    //System.out.println("minX' > maxX");
+                    leftBound = randomDouble(maxX, maxX + (180.0 - maxX) / 2);
+                    rightBound = randomDouble(maxX, 180.0);
+                    minX_ = leftBound;
+                    maxX_ = rightBound;
                     break;
                 case 1:
                     //left
-                    if (minX > -180) { //check if on boundary
-                        //System.out.println("maxX' < minX");
-                        leftBound = randomDouble(-180, ((-180 - minX) / 2));
-                        rightBound = randomDouble(((-180 - minX) / 2), minX);
-                        maxX_ = leftBound;
-                        minX_ = rightBound;
-                    }
+                    //System.out.println("maxX' < minX");
+                    leftBound = randomDouble(-180, -180 - ((-180 - minX) / 2));
+                    rightBound = randomDouble(-180 - ((-180 - minX) / 2), minX);
+                    maxX_ = leftBound;
+                    minX_ = rightBound;
                     break;
                 case 2:
                     //up
-                    if (maxY < 90) { //check if on boundary
-                        //System.out.println("minY' > maxY");
-                        downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
-                        upBound = randomDouble(maxY, 90.0);
-                        minY_ = downBound;
-                        maxY_ = upBound;
-                    }
+                    //System.out.println("minY' > maxY");
+                    downBound = randomDouble(maxY, maxY + (90.0 - maxY) / 2);
+                    upBound = randomDouble(maxY, 90.0);
+                    minY_ = downBound;
+                    maxY_ = upBound;
                     break;
                 case 3:
                     //down
-                    if (minY > -90) { //check if on boundary
-                        //System.out.println("maxY' < minY");
-                        upBound = randomDouble(-90, ((-90 - minY) / 2));
-                        downBound = randomDouble(((-90 - minY) / 2), minY);
-                        minY_ = upBound;
-                        maxY_ = downBound;
-                    }
+                    //System.out.println("maxY' < minY");
+                    upBound = randomDouble(-90, -90 - ((-90 - minY) / 2));
+                    downBound = randomDouble(-90 - ((-90 - minY) / 2), minY);
+                    minY_ = upBound;
+                    maxY_ = downBound;
                     break;
 
             }
@@ -420,7 +406,8 @@ public class CreateTouchesGeometryObject extends GeometryType {
             List<Double> minYes = new ArrayList<Double>();
             List<Double> maxYes = new ArrayList<Double>();
 
-            ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, geo.getCoordinates().length - 1); //fix parts 
+            //TODO : fix parts 
+            ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, geo.getCoordinates().length - 1);
 
             for (Envelope envelope : envelopes) {
                 minXes.add(envelope.getMinX());
@@ -529,6 +516,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             Envelope leftUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
+            //upologizo ola ta env kai meta vlepo an kanoun intersect gia na ta aporipso
             //if only intersects with the touchCoord
             for (Envelope envelope : envelopes) {
 
@@ -574,10 +562,8 @@ public class CreateTouchesGeometryObject extends GeometryType {
                 touchesEnv = move.get(element);
 
             }
-            System.out.println("move " + move.toString());
         }
 
-        System.out.println("touchesEnv " + touchesEnv);
         return touchesEnv;
     }
 }
