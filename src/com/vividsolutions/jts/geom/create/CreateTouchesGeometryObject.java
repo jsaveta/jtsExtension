@@ -125,14 +125,18 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         }
 
                         int coordsToGenerate = lineString.getNumPoints() - 1;
-                        if (coordsToGenerate < 2) {
-                            coordsToGenerate = 2;
+                        if (coordsToGenerate < 4) {
+                            coordsToGenerate = 4;
+                        }
+                        if (coordsToGenerate > 350) {
+                            coordsToGenerate = 350;
                         }
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         //default is ARC and need more points - check this
-                        pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
+                        pg.setGenerationAlgorithm(LineStringGenerator.ARC);
                         pg.setNumberPoints(coordsToGenerate);
+
                         Coordinate[] coords;
 
                         switch (cases) {
@@ -421,7 +425,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
             Collections.sort(minYes);
             Collections.sort(maxYes);
 
-            double e = 0.01;
+            double e = 0;//0.01;
             //down + right
 //            System.out.println("down + right");
             minX_ = coordX + e;
