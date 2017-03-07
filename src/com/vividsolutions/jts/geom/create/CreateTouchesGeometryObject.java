@@ -45,7 +45,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
         GeometryFactory geometryFactory = new GeometryFactory();
-        this.returned = this.given; //in case that there is nothing to return
+        this.returned = null; 
 
         switch (givenGeometryType) {
             case "Point":
@@ -142,52 +142,63 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         switch (cases) {
                             //BB
                             case 0:
+//                                if (!touchesEnv.isNull()) {
+                                    pg.setBoundingBox(touchesEnv);
+                                    LineString pt_0 = (LineString) pg.create();
+                                    if (pt_0 != null) {
+                                        Coordinate[] generatedCoords_0 = pt_0.getCoordinates();
 
-                                pg.setBoundingBox(touchesEnv);
-                                LineString pt_0 = (LineString) pg.create();
-                                Coordinate[] generatedCoords_0 = pt_0.getCoordinates();
-
-                                int order = coin.nextInt(2);
-                                switch (order) {
-                                    case 0:
-                                        coords = concatenate(selectedBoundCoord, generatedCoords_0);
-                                        this.returned = geometryFactory.createLineString(coords);
-                                        break;
-                                    case 1:
-                                        coords = concatenate(generatedCoords_0, selectedBoundCoord);
-                                        this.returned = geometryFactory.createLineString(coords);
-                                        break;
-                                }
+                                        int order = coin.nextInt(2);
+                                        switch (order) {
+                                            case 0:
+                                                coords = concatenate(selectedBoundCoord, generatedCoords_0);
+                                                this.returned = geometryFactory.createLineString(coords);
+                                                break;
+                                            case 1:
+                                                coords = concatenate(generatedCoords_0, selectedBoundCoord);
+                                                this.returned = geometryFactory.createLineString(coords);
+                                                break;
+                                        }
+                                    }
+//                                }
 
                                 break;
                             //BI
                             case 1:
-                                pg.setBoundingBox(touchesEnv);
+//                                if (!touchesEnv.isNull()) {
+                                    pg.setBoundingBox(touchesEnv);
 
-                                LineString pt_1 = (LineString) pg.create();
-                                Coordinate[] generatedCoords_1 = pt_1.getCoordinates();
+                                    LineString pt_1 = (LineString) pg.create();
+                                    if (pt_1 != null) {
+                                        Coordinate[] generatedCoords_1 = pt_1.getCoordinates();
 
-                                coords = concatenate(selectedBoundCoord, generatedCoords_1);
-                                Collections.shuffle(Arrays.asList(coords));
-                                this.returned = geometryFactory.createLineString(coords);
+                                        coords = concatenate(selectedBoundCoord, generatedCoords_1);
+                                        Collections.shuffle(Arrays.asList(coords));
+                                        this.returned = geometryFactory.createLineString(coords);
+                                    }
+//                                }
                                 break;
 
                             //IB
                             case 2:
-                                pg.setBoundingBox(touchesEnv);
-                                LineString pt_2 = (LineString) pg.create();
-                                Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
-                                int ord = coin.nextInt(2);
-                                switch (ord) {
-                                    case 0:
-                                        coords = concatenate(internal, generatedCoords_2);
-                                        this.returned = geometryFactory.createLineString(coords);
-                                        break;
-                                    case 1:
-                                        coords = concatenate(generatedCoords_2, internal);
-                                        this.returned = geometryFactory.createLineString(coords);
-                                        break;
-                                }
+//                                if (!touchesEnv.isNull()) {
+                                    pg.setBoundingBox(touchesEnv);
+                                    LineString pt_2 = (LineString) pg.create();
+                                    if (pt_2 != null) {
+                                        Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
+                                        int ord = coin.nextInt(2);
+                                        switch (ord) {
+                                            case 0:
+                                                coords = concatenate(internal, generatedCoords_2);
+                                                this.returned = geometryFactory.createLineString(coords);
+                                                break;
+                                            case 1:
+                                                coords = concatenate(generatedCoords_2, internal);
+                                                this.returned = geometryFactory.createLineString(coords);
+                                                break;
+                                        }
+                                    }
+//                                }
                                 break;
                         }
                         break;
@@ -347,7 +358,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
         //if touchCoord has a x or y that is the minimum or maximm of all
         ArrayList<Integer> cases = new ArrayList<Integer>();
-        //e.g. if coordX is the maximum, then we can keep the right boundary
+        //e.g. if coordX is the maximum and you can extend right, choose this
         if (coordX == maxX && maxX < 180) { //right
             cases.add(0);
         }
@@ -430,37 +441,58 @@ public class CreateTouchesGeometryObject extends GeometryType {
 //            System.out.println("down + right");
             minX_ = coordX + e;
             maxY_ = coordY - e;
+            minY_ = -90;
+            maxX_ = 180;
+
+            for (int j = 0; j < minYes.size(); j++) {
+                if (maxY > minYes.get(j)) {
+                    maxY_ = minYes.get(j);
+                    break;
+                }
+            }
+            for (int j = 0; j < maxXes.size(); j++) {
+                if (minX > maxXes.get(j)) {
+                    minX_ = maxXes.get(j);
+                }
+            }
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
                     maxX_ = minXes.get(j) - e;
                     break;
-                } else {
-                    maxX_ = 180;
                 }
             }
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
                     minY_ = maxYes.get(j) + e;
-                } else {
-                    minY_ = -90;
                 }
             }
 
             Envelope rightDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + right
-//            System.out.println("up + right");
             minX_ = coordX + e;
             minY_ = coordY + e;
+            maxX_ = 180;
+            maxY_ = 90;
+
+            for (int j = 0; j < maxXes.size(); j++) {
+                if (minX > maxXes.get(j)) {
+                    minX_ = maxXes.get(j);
+                }
+            }
+
+            for (int j = 0; j < maxYes.size(); j++) {
+                if (minY < maxYes.get(j)) {
+                    minY_ = maxYes.get(j);
+                }
+            }
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
                     maxX_ = minXes.get(j) - e;
                     break;
-                } else {
-                    maxX_ = 180;
                 }
             }
 
@@ -468,44 +500,66 @@ public class CreateTouchesGeometryObject extends GeometryType {
                 if (coordY < minYes.get(j)) {
                     maxY_ = minYes.get(j) - e;
                     break;
-                } else {
-                    maxY_ = 90;
                 }
             }
 
             Envelope rightUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //down + left
-//            System.out.println("down + left");
             maxX_ = coordX - e;
             maxY_ = coordY - e;
+            minX_ = -180;
+            minY_ = -90;
+
+            for (int j = 0; j < minYes.size(); j++) {
+                if (maxY > minYes.get(j)) {
+                    maxY_ = minYes.get(j);
+                    break;
+                }
+            }
+
+            for (int j = 0; j < minXes.size(); j++) {
+                if (maxX > minXes.get(j)) {
+                    maxX_ = minXes.get(j);
+                    break;
+                }
+            }
+
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
                     minX_ = maxXes.get(j) + e;
-                } else {
-                    minX_ = -180;
                 }
             }
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
                     minY_ = maxYes.get(j) + e;
-                } else {
-                    minY_ = -90;
                 }
             }
 
             Envelope leftDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + left
-//            System.out.println("up + left");
             maxX_ = coordX - e;
             minY_ = coordY + e;
+            minX_ = -180;
+            maxY_ = 90;
+
+            for (int j = 0; j < minXes.size(); j++) {
+                if (maxX > minXes.get(j)) {
+                    maxX_ = minXes.get(j);
+                    break;
+                }
+            }
+            for (int j = 0; j < maxYes.size(); j++) {
+                if (minY < maxYes.get(j)) {
+                    minY_ = maxYes.get(j);
+                }
+            }
+
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
                     minX_ = maxXes.get(j) + e;
-                } else {
-                    minX_ = -180;
                 }
             }
 
@@ -513,15 +567,13 @@ public class CreateTouchesGeometryObject extends GeometryType {
                 if (coordY < minYes.get(j)) {
                     maxY_ = minYes.get(j) - e;
                     break;
-                } else {
-                    maxY_ = 90;
                 }
             }
 
             Envelope leftUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
-            //upologizo ola ta env kai meta vlepo an kanoun intersect gia na ta aporipso
-            //if only intersects with the touchCoord
+            //if computed envelope intersects with one of the smaller envelopes from  the given one
+            //we do not consider it
             for (Envelope envelope : envelopes) {
 
                 if (rightDownEnv != null && rightDownEnv.intersects(envelope)) {
@@ -567,7 +619,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
             }
         }
-
+        System.out.println("touchesEnv " + touchesEnv);
         return touchesEnv;
     }
 }
