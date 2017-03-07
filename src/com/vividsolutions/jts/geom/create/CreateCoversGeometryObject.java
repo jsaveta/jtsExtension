@@ -14,6 +14,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import java.util.Random;
 
 /**
  *
@@ -23,11 +24,11 @@ public class CreateCoversGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
-    protected int chunk;
+//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateCoversGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-        this.chunk = 2;
+//        this.chunk = 2;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
@@ -95,7 +96,16 @@ public class CreateCoversGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        //@TODO: IMPLEMENT THIS FIRST
+                        //modify chunk
+                        //covers is same as contains regarding linestrings ??
+
+                        Random randomGenerator = new Random();
+                        int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                        LineString[] lineArray = getLineStringArray(lineString, chunk);
+                        int randomInt = randomGenerator.nextInt(lineArray.length);
+                        System.out.println("chunk " + chunk);
+                        LineString line = lineArray[randomInt];
+                        this.returned = line;
                         break;
                     case "LinearRing":
                         break;

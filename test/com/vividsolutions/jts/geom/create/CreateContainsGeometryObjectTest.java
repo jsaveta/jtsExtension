@@ -56,8 +56,8 @@ public class CreateContainsGeometryObjectTest extends TestCase {
             CreateContainsGeometryObject instanceL1 = new CreateContainsGeometryObject(line, GeometryType.GeometryTypes.LineString);
 
             Geometry resultL1 = instanceL1.generateGeometry();
-//            System.out.println("line: " + line);
-//            System.out.println("result: " + resultL1);
+            System.out.println("line: " + line);
+            System.out.println("result: " + resultL1);
 //            System.out.println("intersection "+ line.intersection(resultL1));
             assertTrue(line.contains(resultL1));
         }

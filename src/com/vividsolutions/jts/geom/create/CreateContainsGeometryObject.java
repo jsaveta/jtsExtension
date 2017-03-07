@@ -24,11 +24,11 @@ public class CreateContainsGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
-    protected int chunk;
+//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateContainsGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-        this.chunk = 4;
+//        this.chunk = 4;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
@@ -96,11 +96,12 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        LineString[] lineArray = getLineStringArray(lineString, chunk);
                         Random randomGenerator = new Random();
+                        int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                        LineString[] lineArray = getLineStringArray(lineString, chunk);
                         int randomInt = randomGenerator.nextInt(lineArray.length);
-                        System.out.println("randomInt " +randomInt);
-                        LineString line = lineArray[randomInt];                        
+                        System.out.println("chunk " + chunk);
+                        LineString line = lineArray[randomInt];
                         this.returned = line;
                         break;
                     case "LinearRing":
