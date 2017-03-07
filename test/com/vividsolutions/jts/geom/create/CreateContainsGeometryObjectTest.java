@@ -5,9 +5,13 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.io.ParseException;
+import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import java.util.Random;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import junit.framework.TestCase;
@@ -37,17 +41,26 @@ public class CreateContainsGeometryObjectTest extends TestCase {
      * Test of generateGeometry method, of class CreateContainsGeometryObject.
      */
     public void testGenerateGeometry() throws ParseException {
-        LineString line = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011)");
-        LineString line1 = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011)");
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Random rand = new Random();
+        for (int i = 0; i < 1000; i++) {
+            LineStringGenerator pg = new LineStringGenerator();
+            pg.setGeometryFactory(geometryFactory);
+            pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
 
-        
-        CreateContainsGeometryObject instanceL1 = new CreateContainsGeometryObject(line, GeometryType.GeometryTypes.LineString);
-        Geometry resultL1 = instanceL1.generateGeometry();
-        System.out.println("result: " + resultL1);
-        System.out.println("LineString contains LineString: " + line.contains(line1));
-        
-        System.out.println("LineString contains LineString: " + line.contains(resultL1));
-        assertTrue(line.contains(resultL1));
+            //10 to 350 points (check generation of larger linestrings)
+            int numPoints = rand.nextInt(350) + 10;
+            pg.setNumberPoints(numPoints);
+
+            LineString line = (LineString) pg.create();
+            CreateContainsGeometryObject instanceL1 = new CreateContainsGeometryObject(line, GeometryType.GeometryTypes.LineString);
+
+            Geometry resultL1 = instanceL1.generateGeometry();
+//            System.out.println("line: " + line);
+//            System.out.println("result: " + resultL1);
+//            System.out.println("intersection "+ line.intersection(resultL1));
+            assertTrue(line.contains(resultL1));
+        }
     }
 
 }
