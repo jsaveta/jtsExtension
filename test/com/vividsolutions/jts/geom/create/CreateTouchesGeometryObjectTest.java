@@ -72,3 +72,7 @@ public class CreateTouchesGeometryObjectTest extends TestCase {
             }
 
         }
+
+    }
+
+}
