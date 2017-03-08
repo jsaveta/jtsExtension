@@ -5,6 +5,8 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -14,6 +16,8 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import java.util.Random;
 
 /**
  *
@@ -95,8 +99,34 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        //@TODO: IMPLEMENT THIS FIRST
+                        Envelope env = lineString.getEnvelopeInternal();
+
+                        //keep n random points of given linestring
+                        Random randomGenerator = new Random();
+                        int length = lineString.getCoordinates().length;
+                        int poinsToIntersect = randomGenerator.nextInt(length - 2) + 1;
+                        int pointsToGenerate = length - poinsToIntersect;
+                        if (pointsToGenerate < 4) {
+                            pointsToGenerate = 4;
+                        }
+                        if (pointsToGenerate > 350) {
+                            pointsToGenerate = 350;
+                        }
+                        
+                        //generate the rest of points 
+                        LineStringGenerator pg = new LineStringGenerator();
+                        pg.setGeometryFactory(geometryFactory);
+                        pg.setBoundingBox(env);
+                        //pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
+                        pg.setNumberPoints(pointsToGenerate);
+                        LineString pt = (LineString) pg.create();
+
+                        //merge all points and create a new linestring
+                        Coordinate[] coords = concatenate(pickNRandom(lineString.getCoordinates(), poinsToIntersect), pt.getCoordinates());
+                        this.returned = geometryFactory.createLineString(coords);
+
                         break;
+
                     case "LinearRing":
                         break;
                     case "MultiLineString":
