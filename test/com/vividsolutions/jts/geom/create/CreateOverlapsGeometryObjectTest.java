@@ -9,6 +9,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
@@ -43,29 +44,29 @@ public class CreateOverlapsGeometryObjectTest extends TestCase {
         GeometryFactory geometryFactory = new GeometryFactory();
         WKTReader reader = new WKTReader(geometryFactory);
         Random rand = new Random();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100000; i++) {
             LineStringGenerator pg = new LineStringGenerator();
             pg.setGeometryFactory(geometryFactory);
             pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
 
             //10 to 350 points (check generation of larger linestrings)
             int numPoints = rand.nextInt(350) + 10;
-            System.out.println("numPoints " + numPoints);
-            pg.setNumberPoints(numPoints);
-
+//            System.out.println("numPoints " + numPoints);
+            pg.setNumberPoints(10);
+            pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
             LineString line = (LineString) pg.create();
-            CreateOverlapsGeometryObject instanceL1 = new CreateOverlapsGeometryObject(line, GeometryType.GeometryTypes.LineString);
 
-            Geometry resultL1 = instanceL1.generateGeometry();
             System.out.println("line: " + line + " size " + line.getCoordinates().length);
+
+            CreateOverlapsGeometryObject instanceL1 = new CreateOverlapsGeometryObject(line, GeometryType.GeometryTypes.LineString);
+            Geometry resultL1 = instanceL1.generateGeometry();
             System.out.println("result: " + resultL1 + " size " + resultL1.getCoordinates().length);
-//            System.out.println("intersection " + line.intersection(resultL1));
 
 //            LineString line = (LineString) reader.read("LINESTRING( 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366, 1 1)");
 //            LineString resultL1 = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
-//            System.out.println(" inter " + line.intersection(resultL1));
-//            assertTrue(resultL1.overlaps(line));
-            assertTrue(line.overlaps(resultL1));
+            assertTrue(resultL1.overlaps(line));
+            assertTrue(resultL1.isValid());
+//            assertTrue(line.overlaps(resultL1));
 
         }
     }

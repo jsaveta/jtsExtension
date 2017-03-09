@@ -71,7 +71,7 @@ public abstract class WritingTestCase extends TestCase
 		return new StringReader(s);
 	}
 	
-	protected static PrecisionModel precisionModel = new PrecisionModel(1000000);
+	protected static PrecisionModel precisionModel = new PrecisionModel(100);
 	protected static GeometryFactory geometryFactory = new GeometryFactory(precisionModel);
 
 	protected void checkRoundTrip(Geometry g) 

@@ -14,6 +14,7 @@ import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import static junit.framework.Assert.assertEquals;
@@ -44,8 +45,7 @@ public class CreateEqualGeometryObjectTest extends TestCase {
      * Test of generateGeometry method, of class CreateEqualGeometryObject.
      */
     public void testGenerateGeometry() throws ParseException {
-        System.out.println("generateGeometry");
-        GeometryFactory geometryFactory = new GeometryFactory();
+	GeometryFactory geometryFactory = new GeometryFactory();
         WKTReader reader = new WKTReader(geometryFactory);
 
         //test EQUALS for a given POINT

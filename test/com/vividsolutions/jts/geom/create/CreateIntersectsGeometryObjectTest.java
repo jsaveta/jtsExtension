@@ -9,6 +9,7 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.Random;
 import static junit.framework.Assert.assertTrue;
@@ -38,7 +39,7 @@ public class CreateIntersectsGeometryObjectTest extends TestCase {
      * Test of generateGeometry method, of class CreateIntersectsGeometryObject.
      */
     public void testGenerateGeometry() {
-        GeometryFactory geometryFactory = new GeometryFactory();
+	GeometryFactory geometryFactory = new GeometryFactory();
         Random rand = new Random();
         for (int i = 0; i < 100000; i++) {
             LineStringGenerator pg = new LineStringGenerator();
@@ -56,6 +57,7 @@ public class CreateIntersectsGeometryObjectTest extends TestCase {
             Geometry resultL1 = instanceL1.generateGeometry();
             System.out.println("line: " + line);
             System.out.println("result: " + resultL1);
+            assertTrue(resultL1.isValid());
 //            System.out.println("intersection "+ line.intersection(resultL1));
             assertTrue(line.intersects(resultL1));
 
