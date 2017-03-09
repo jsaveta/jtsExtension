@@ -52,8 +52,8 @@ public class CreateOverlapsGeometryObjectTest extends TestCase {
             //10 to 350 points (check generation of larger linestrings)
             int numPoints = rand.nextInt(350) + 10;
 //            System.out.println("numPoints " + numPoints);
-            pg.setNumberPoints(10);
-            pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
+            pg.setNumberPoints(numPoints);
+//            pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
             LineString line = (LineString) pg.create();
 
             System.out.println("line: " + line + " size " + line.getCoordinates().length);

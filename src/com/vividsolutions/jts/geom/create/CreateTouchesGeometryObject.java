@@ -44,7 +44,8 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
-        GeometryFactory geometryFactory = new GeometryFactory();
+        
+	GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = null; 
 
         switch (givenGeometryType) {
@@ -111,9 +112,9 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         while (touchesEnv == null) {
                             cases = coin.nextInt(3);
                             if (cases == 2) {
-                                Coordinate[] lineCoord = lineString.getCoordinates();
+                                Coordinate[] lineCoord = notIntersectingElements(lineString.getCoordinates());
                                 //check this
-                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 1];
+                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 2];
                                 touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
                             } else {
                                 Geometry bound = lineString.getBoundary();
@@ -134,7 +135,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         //default is ARC and need more points - check this
-                        pg.setGenerationAlgorithm(LineStringGenerator.ARC);
+//                        pg.setGenerationAlgorithm(LineStringGenerator.ARC);
                         pg.setNumberPoints(coordsToGenerate);
 
                         Coordinate[] coords;
@@ -338,6 +339,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
     protected Envelope generateTouchesEnvelope(Geometry geo, Coordinate touchCoord) {
         Envelope touchesEnv = null;
         Envelope env = geo.getEnvelopeInternal();
+        System.out.println("env " +env);
         double coordX = touchCoord.x;
         double coordY = touchCoord.y;
 
@@ -374,6 +376,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
         }
         Random coin = new Random();
         if (cases.size() > 0) {
+            System.out.println("IF");
             int c = coin.nextInt(cases.size());
             switch (cases.get(c)) {
                 case 0:
@@ -414,6 +417,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
             touchesEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
         } else {
+            System.out.println("ELSE");
             //here cut the boundary boxes
 
             List<Double> minXes = new ArrayList<Double>();
