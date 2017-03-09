@@ -113,8 +113,9 @@ public class CreateTouchesGeometryObject extends GeometryType {
                             cases = coin.nextInt(3);
                             if (cases == 2) {
                                 Coordinate[] lineCoord = notIntersectingElements(lineString.getCoordinates());
-                                //check this -> coin.nextInt(lineCoord.length - 2)
-                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 2) + 2];
+                                //check this -> coin.nextInt(lineCoord.length - 4)
+                                ////(max - min + 1) + min
+                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 4) + 2];
                                 touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
                             } else {
                                 Geometry bound = lineString.getBoundary();
