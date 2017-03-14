@@ -67,7 +67,7 @@ public class StaticLineStringTest extends WritingTestCase {
         LineStringGenerator pg = new LineStringGenerator();
         pg.setGeometryFactory(geometryFactory);
         pg.setBoundingBox(new Envelope(19.045658, 3.531829, 30.871582, 2.316111));
-        pg.setNumberPoints(10);
+        pg.setNumberPoints(1000);
 
         LineString pt = (LineString) pg.create();
 
@@ -85,9 +85,9 @@ public class StaticLineStringTest extends WritingTestCase {
     public void testSingleLineStringManyPointRoundTrip() throws SAXException, IOException, ParserConfigurationException {
         LineStringGenerator pg = new LineStringGenerator();
         pg.setGeometryFactory(geometryFactory);
-        pg.setBoundingBox(new Envelope(0, 10, 0, 10));
+        pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
         pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
-        pg.setNumberPoints(1000);
+        pg.setNumberPoints(300);
 
         LineString pt = (LineString) pg.create();
 

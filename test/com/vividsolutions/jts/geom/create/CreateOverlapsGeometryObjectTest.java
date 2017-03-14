@@ -9,7 +9,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
@@ -57,7 +56,6 @@ public class CreateOverlapsGeometryObjectTest extends TestCase {
             LineString line = (LineString) pg.create();
 
             System.out.println("line: " + line + " size " + line.getCoordinates().length);
-
             CreateOverlapsGeometryObject instanceL1 = new CreateOverlapsGeometryObject(line, GeometryType.GeometryTypes.LineString);
             Geometry resultL1 = instanceL1.generateGeometry();
             System.out.println("result: " + resultL1 + " size " + resultL1.getCoordinates().length);
@@ -66,7 +64,6 @@ public class CreateOverlapsGeometryObjectTest extends TestCase {
 //            LineString resultL1 = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
             assertTrue(resultL1.overlaps(line));
             assertTrue(resultL1.isValid());
-//            assertTrue(line.overlaps(resultL1));
 
         }
     }

@@ -24,24 +24,21 @@ public class CreateContainsGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
-//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateContainsGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-//        this.chunk = 4;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
     }
 
     public Geometry generateGeometry() {
-        String givenGeometryType = this.given.getGeometryType();
-        GeometryFactory geometryFactory = new GeometryFactory();
+        String givenGeometryType = this.given.getGeometryType();       
+	GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
             case "Point":
-                //points cannot touch to each other
                 Point point = (Point) this.given;
                 switch (this.returnedGeometry.getSimpleName()) {
                     case "Point":
@@ -100,7 +97,6 @@ public class CreateContainsGeometryObject extends GeometryType {
                         int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
                         int randomInt = randomGenerator.nextInt(lineArray.length);
-                        System.out.println("chunk " + chunk);
                         LineString line = lineArray[randomInt];
                         this.returned = line;
                         break;

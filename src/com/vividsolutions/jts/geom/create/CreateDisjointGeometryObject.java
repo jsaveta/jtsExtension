@@ -41,8 +41,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
+
         GeometryFactory geometryFactory = new GeometryFactory();
-        this.returned = this.given; //in case that there is nothing to return
+        this.returned = null;
 
         switch (givenGeometryType) {
             case "Point":
@@ -118,8 +119,9 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
                         //or at least for horx etc
                         Random rn = new Random();
-                        int parts = rn.nextInt(1);
-                        Envelope disjEnv = generateDisjointEnvelope(lineString, 3); //parts instead of 3
+                        //(max - min + 1) + min
+                        int parts = rn.nextInt(4) + 3;
+                        Envelope disjEnv = generateDisjointEnvelope(lineString, parts); 
                         if (!disjEnv.isNull()) {
                             pg.setBoundingBox(disjEnv);
                             LineString pt = (LineString) pg.create();
@@ -266,7 +268,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
     protected Envelope generateDisjointEnvelope(Geometry geo, int parts) {
         Envelope disjointEnv = null;
         Envelope env = geo.getEnvelopeInternal();
-        System.out.println("env " + env);
+//        System.out.println("env " + env);
         double minX = env.getMinX();
         double maxX = env.getMaxX();
         double minY = env.getMinY();
@@ -301,7 +303,7 @@ public class CreateDisjointGeometryObject extends GeometryType {
             moves.add(3);
         }
         if (moves.size() > 0) {
-            System.out.println("IF");
+//            System.out.println("IF");
             int c = coin.nextInt(moves.size());
             switch (moves.get(c)) {
                 case 0:
@@ -341,193 +343,193 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
             disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
-        } else { //if moving just up, down, left or right is not possible
-        System.out.println("ELSE");
-        ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
+        } else {
+//if moving just up, down, left or right is not possible
+//            System.out.println("ELSE");
 
 //        System.out.println("envelopes " + envelopes);
+            List<Double> minXes = new ArrayList<Double>();
+            List<Double> maxXes = new ArrayList<Double>();
+            List<Double> minYes = new ArrayList<Double>();
+            List<Double> maxYes = new ArrayList<Double>();
 
-        List<Double> minXes = new ArrayList<Double>();
-        List<Double> maxXes = new ArrayList<Double>();
-        List<Double> minYes = new ArrayList<Double>();
-        List<Double> maxYes = new ArrayList<Double>();
-
-        for (Envelope envelope : envelopes) {
-            minXes.add(envelope.getMinX());
-            maxXes.add(envelope.getMaxX());
-            minYes.add(envelope.getMinY());
-            maxYes.add(envelope.getMaxY());
-        }
-
-        Collections.sort(minXes);
-        Collections.sort(maxXes);
-        Collections.sort(minYes);
-        Collections.sort(maxYes);
-
-        for (int i = 0; i < envelopes.size(); i++) {
-            System.out.println("envelopes.get(i) " +envelopes.get(i));
-            minX = envelopes.get(i).getMinX();
-            maxX = envelopes.get(i).getMaxX();
-            minY = envelopes.get(i).getMinY();
-            maxY = envelopes.get(i).getMaxY();
-
-            int cases = coin.nextInt(4);
-                System.out.println("cases " + cases);
-            switch (cases) {
-                case 0:
-                    //right + down
-                    minX_ = maxX;
-                    maxY_ = minY;
-
-                    minY_ = -90;
-                    maxX_ = 180;
-
-                    for (int j = 0; j < minYes.size(); j++) {
-                        if (maxY > minYes.get(j)) {
-                            maxY_ = minYes.get(j);
-                            break;
-                        }
-                    }
-                    for (int j = 0; j < maxXes.size(); j++) {
-                        if (minX > maxXes.get(j)) {
-                            minX_ = maxXes.get(j);
-                        }
-                    }
-
-                    if (maxX < 180) { //check if on boundary
-                        for (int j = 0; j < minXes.size(); j++) {
-                            if (maxX < minXes.get(j)) {
-                                maxX_ = minXes.get(j);
-                                break;
-                            }
-                        }
-                    }
-                    if (minY > -90) { //check if on boundary
-                        for (int j = 0; j < maxYes.size(); j++) {
-                            if (minY > maxYes.get(j)) {
-                                minY_ = maxYes.get(j);
-                            }
-                        }
-                    }
-
-                    break;
-                case 1:
-                    //up + right
-                    minX_ = maxX;
-                    minY_ = maxY;
-
-                    maxX_ = 180;
-                    maxY_ = 90;
-
-                    for (int j = 0; j < maxXes.size(); j++) {
-                        if (minX > maxXes.get(j)) {
-                            minX_ = maxXes.get(j);
-                        }
-                    }
-
-                    for (int j = 0; j < maxYes.size(); j++) {
-                        if (minY < maxYes.get(j)) {
-                            minY_ = maxYes.get(j);
-                        }
-                    }
-
-                    if (maxX < 180) { //check if on boundary
-                        for (int j = 0; j < minXes.size(); j++) {
-                            if (maxX < minXes.get(j)) {
-                                maxX_ = minXes.get(j);
-                                break;
-                            }
-                        }
-                    }
-                    if (maxY < 90) { //check if on boundary
-                        for (int j = 0; j < minYes.size(); j++) {
-                            if (maxY < minYes.get(j)) {
-                                maxY_ = minYes.get(j);
-                                break;
-                            }
-                        }
-                    }
-                    break;
-
-                case 2:
-                    //down + left
-                    maxX_ = minX;
-                    maxY_ = minY;
-
-                    minX_ = -180;
-                    minY_ = -90;
-
-                    for (int j = 0; j < minYes.size(); j++) {
-                        if (maxY > minYes.get(j)) {
-                            maxY_ = minYes.get(j);
-                            break;
-                        }
-                    }
-
-                    for (int j = 0; j < minXes.size(); j++) {
-                        if (maxX > minXes.get(j)) {
-                            maxX_ = minXes.get(j);
-                            break;
-                        }
-                    }
-
-                    if (minX > -180) { //check if on boundary
-                        for (int j = 0; j < maxXes.size(); j++) {
-                            if (minX > maxXes.get(j)) {
-                                minX_ = maxXes.get(j);
-                            }
-                        }
-                    }
-                    if (minY > -90) { //check if on boundary
-                        for (int j = 0; j < maxYes.size(); j++) {
-                            if (minY > maxYes.get(j)) {
-                                minY_ = maxYes.get(j);
-                            }
-                        }
-                    }
-                    break;
-
-                case 3:
-                    //up + left
-                    maxX_ = minX;
-                    minY_ = maxY;
-
-                    minX_ = -180;
-                    maxY_ = 90;
-
-                    for (int j = 0; j < minXes.size(); j++) {
-                        if (maxX > minXes.get(j)) {
-                            maxX_ = minXes.get(j);
-                            break;
-                        }
-                    }
-                    for (int j = 0; j < maxYes.size(); j++) {
-                        if (minY < maxYes.get(j)) {
-                            minY_ = maxYes.get(j);
-                        }
-                    }
-                    if (minX > -180) { //check if on boundary
-                        for (int j = 0; j < maxXes.size(); j++) {
-                            if (minX > maxXes.get(j)) {
-                                minX_ = maxXes.get(j);
-                            }
-                        }
-                    }
-                    if (maxY < 90) { //check if on boundary
-                        for (int j = 0; j < minYes.size(); j++) {
-                            if (maxY < minYes.get(j)) {
-                                maxY_ = minYes.get(j);
-                                break;
-                            }
-                        }
-                    }
-                    break;
-
+            ArrayList<Envelope> envelopes = cutGeometryEnvelope(geo, parts);
+            for (Envelope envelope : envelopes) {
+                minXes.add(envelope.getMinX());
+                maxXes.add(envelope.getMaxX());
+                minYes.add(envelope.getMinY());
+                maxYes.add(envelope.getMaxY());
             }
+
+            Collections.sort(minXes);
+            Collections.sort(maxXes);
+            Collections.sort(minYes);
+            Collections.sort(maxYes);
+
+            for (int i = 0; i < envelopes.size(); i++) {
+//            System.out.println("envelopes.get(i) " +envelopes.get(i));
+                minX = envelopes.get(i).getMinX();
+                maxX = envelopes.get(i).getMaxX();
+                minY = envelopes.get(i).getMinY();
+                maxY = envelopes.get(i).getMaxY();
+
+                int cases = coin.nextInt(4);
+//                System.out.println("cases " + cases);
+                switch (cases) {
+                    case 0:
+                        //right + down
+                        minX_ = maxX;
+                        maxY_ = minY;
+
+                        minY_ = -90;
+                        maxX_ = 180;
+
+                        for (int j = 0; j < minYes.size(); j++) {
+                            if (maxY > minYes.get(j)) {
+                                maxY_ = minYes.get(j);
+                                break;
+                            }
+                        }
+                        for (int j = 0; j < maxXes.size(); j++) {
+                            if (minX > maxXes.get(j)) {
+                                minX_ = maxXes.get(j);
+                            }
+                        }
+
+                        if (maxX < 180) { //check if on boundary
+                            for (int j = 0; j < minXes.size(); j++) {
+                                if (maxX < minXes.get(j)) {
+                                    maxX_ = minXes.get(j);
+                                    break;
+                                }
+                            }
+                        }
+                        if (minY > -90) { //check if on boundary
+                            for (int j = 0; j < maxYes.size(); j++) {
+                                if (minY > maxYes.get(j)) {
+                                    minY_ = maxYes.get(j);
+                                }
+                            }
+                        }
+
+                        break;
+                    case 1:
+                        //up + right
+                        minX_ = maxX;
+                        minY_ = maxY;
+
+                        maxX_ = 180;
+                        maxY_ = 90;
+
+                        for (int j = 0; j < maxXes.size(); j++) {
+                            if (minX > maxXes.get(j)) {
+                                minX_ = maxXes.get(j);
+                            }
+                        }
+
+                        for (int j = 0; j < maxYes.size(); j++) {
+                            if (minY < maxYes.get(j)) {
+                                minY_ = maxYes.get(j);
+                            }
+                        }
+
+                        if (maxX < 180) { //check if on boundary
+                            for (int j = 0; j < minXes.size(); j++) {
+                                if (maxX < minXes.get(j)) {
+                                    maxX_ = minXes.get(j);
+                                    break;
+                                }
+                            }
+                        }
+                        if (maxY < 90) { //check if on boundary
+                            for (int j = 0; j < minYes.size(); j++) {
+                                if (maxY < minYes.get(j)) {
+                                    maxY_ = minYes.get(j);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                    case 2:
+                        //down + left
+                        maxX_ = minX;
+                        maxY_ = minY;
+
+                        minX_ = -180;
+                        minY_ = -90;
+
+                        for (int j = 0; j < minYes.size(); j++) {
+                            if (maxY > minYes.get(j)) {
+                                maxY_ = minYes.get(j);
+                                break;
+                            }
+                        }
+
+                        for (int j = 0; j < minXes.size(); j++) {
+                            if (maxX > minXes.get(j)) {
+                                maxX_ = minXes.get(j);
+                                break;
+                            }
+                        }
+
+                        if (minX > -180) { //check if on boundary
+                            for (int j = 0; j < maxXes.size(); j++) {
+                                if (minX > maxXes.get(j)) {
+                                    minX_ = maxXes.get(j);
+                                }
+                            }
+                        }
+                        if (minY > -90) { //check if on boundary
+                            for (int j = 0; j < maxYes.size(); j++) {
+                                if (minY > maxYes.get(j)) {
+                                    minY_ = maxYes.get(j);
+                                }
+                            }
+                        }
+                        break;
+
+                    case 3:
+                        //up + left
+                        maxX_ = minX;
+                        minY_ = maxY;
+
+                        minX_ = -180;
+                        maxY_ = 90;
+
+                        for (int j = 0; j < minXes.size(); j++) {
+                            if (maxX > minXes.get(j)) {
+                                maxX_ = minXes.get(j);
+                                break;
+                            }
+                        }
+                        for (int j = 0; j < maxYes.size(); j++) {
+                            if (minY < maxYes.get(j)) {
+                                minY_ = maxYes.get(j);
+                            }
+                        }
+                        if (minX > -180) { //check if on boundary
+                            for (int j = 0; j < maxXes.size(); j++) {
+                                if (minX > maxXes.get(j)) {
+                                    minX_ = maxXes.get(j);
+                                }
+                            }
+                        }
+                        if (maxY < 90) { //check if on boundary
+                            for (int j = 0; j < minYes.size(); j++) {
+                                if (maxY < minYes.get(j)) {
+                                    maxY_ = minYes.get(j);
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+
+                }
+            }
+            disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
         }
-        disjointEnv = new Envelope(minX_, maxX_, minY_, maxY_);
-        }
-        System.out.println("disjointEnv " + disjointEnv);
+//        System.out.println("disjointEnv " + disjointEnv);
         return disjointEnv;
     }
 }

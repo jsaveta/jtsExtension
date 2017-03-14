@@ -15,6 +15,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 
 /**
  *
@@ -36,7 +37,8 @@ public class CreateEqualGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
-        GeometryFactory geometryFactory = new GeometryFactory();
+        
+	GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {

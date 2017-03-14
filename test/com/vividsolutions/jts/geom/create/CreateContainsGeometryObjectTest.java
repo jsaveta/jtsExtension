@@ -9,14 +9,11 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.Random;
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import junit.framework.TestCase;
-import static test.jts.junit.GeometryUtils.reader;
 
 /**
  *
@@ -41,7 +38,7 @@ public class CreateContainsGeometryObjectTest extends TestCase {
     /**
      * Test of generateGeometry method, of class CreateContainsGeometryObject.
      */
-    public void testGenerateGeometry() throws ParseException {
+    public void testGenerateGeometry() {
         
 	GeometryFactory geometryFactory = new GeometryFactory();
         Random rand = new Random();
@@ -61,7 +58,6 @@ public class CreateContainsGeometryObjectTest extends TestCase {
             System.out.println("line: " + line);
             System.out.println("result: " + resultL1);
             assertTrue(resultL1.isValid());
-//            System.out.println("intersection "+ line.intersection(resultL1));
             assertTrue(line.contains(resultL1));
         }
     }

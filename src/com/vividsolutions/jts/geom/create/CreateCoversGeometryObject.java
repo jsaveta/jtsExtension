@@ -14,6 +14,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.PrecisionModel;
 import java.util.Random;
 
 /**
@@ -35,8 +36,8 @@ public class CreateCoversGeometryObject extends GeometryType {
     }
 
     public Geometry generateGeometry() {
-        String givenGeometryType = this.given.getGeometryType();
-        GeometryFactory geometryFactory = new GeometryFactory();
+        String givenGeometryType = this.given.getGeometryType();       
+	GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
@@ -103,7 +104,6 @@ public class CreateCoversGeometryObject extends GeometryType {
                         int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
                         int randomInt = randomGenerator.nextInt(lineArray.length);
-                        System.out.println("chunk " + chunk);
                         LineString line = lineArray[randomInt];
                         this.returned = line;
                         break;

@@ -9,7 +9,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.PrecisionModel;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.Random;
 import static junit.framework.Assert.assertTrue;
@@ -58,7 +57,6 @@ public class CreateCoversGeometryObjectTest extends TestCase {
             System.out.println("line: " + line);
             System.out.println("result: " + resultL1);
             assertTrue(resultL1.isValid());
-//            System.out.println("intersection "+ line.intersection(resultL1));
             assertTrue(line.covers(resultL1));
         }
     }

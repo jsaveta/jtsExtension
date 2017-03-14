@@ -39,7 +39,8 @@ public class CreateIntersectsGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
-        GeometryFactory geometryFactory = new GeometryFactory();
+        
+	GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {

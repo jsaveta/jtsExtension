@@ -42,7 +42,6 @@ public class CreateOverlapsGeometryObject extends GeometryType {
         String givenGeometryType = this.given.getGeometryType();
 
         GeometryFactory geometryFactory = new GeometryFactory();
-//        this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
             case "Point":
@@ -104,11 +103,16 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                         Random randomGenerator = new Random();
                         int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 1) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, lineString.getCoordinates().length / 2);
-                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
-                        LineString line = lineArray[0];
-                        if (rand == 1) {
-                            line = lineArray[lineArray.length - 1];
-                        }
+//                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
+//                        LineString line = lineArray[0];
+//                        if (rand == 1) {
+//                            line = lineArray[lineArray.length - 1];
+//                        }
+
+                        //remove comments above and delete the following two lines when the given lines are real  
+                        //because now it generates the exact same linestring and does not follow the definition of overlaps
+                        int rand = 0;
+                        LineString line = lineArray[rand];
 
                         int length = lineString.getCoordinates().length;
                         int poinsToIntersect = line.getCoordinates().length;

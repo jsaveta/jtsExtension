@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -92,7 +91,6 @@ public abstract class GeometryType {
         }
         return output;
     }
-//https://joinup.ec.europa.eu/svn/gvsig-desktop/trunk/libraries/libTopology/src/org/gvsig/jts/LineStringSplitter.java
 
     /**
      * Cut a LineString into smaller LineStrings
@@ -115,6 +113,14 @@ public abstract class GeometryType {
         return lineArray;
     }
 
+    /**
+     * Concatenate two arrays
+     *
+     * @param <T>
+     * @param a first array
+     * @param b second array
+     * @return a new array that contains both a and b
+     */
     public <T> T[] concatenate(T[] a, T[] b) {
         int aLen = a.length;
         int bLen = b.length;
@@ -127,30 +133,33 @@ public abstract class GeometryType {
         return c;
     }
 
+    /**
+     * Cut the bounding box of a geometry into smaller bounding boxes
+     * Implemented for LineStrings
+     *
+     * @param geo the given geometry to cut
+     * @param parts the parts to cut the geometry in order to compute the new
+     * bounding boxes
+     * @return
+     */
     public ArrayList<Envelope> cutGeometryEnvelope(Geometry geo, int parts) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate[] coord = geo.getCoordinates();
         int chunk = geo.getCoordinates().length / parts;
-        if(chunk < 2){chunk = 2;} //this is when the geometry is a linestring
-        //the other geometries have more restrictions! 
-        //TODO solve this
-        System.out.println("geo.getCoordinates().length " +geo.getCoordinates().length);
-        System.out.println("parts " +parts);
-        System.out.println("chunk " +chunk);
+        if (chunk < 2) {
+            chunk = 2;
+        }
         Coordinate[][] chunckedArray = chunkArray(coord, chunk);
-        
         ArrayList<Envelope> envelopes = new ArrayList<Envelope>();
-        
+
         for (int i = 0; i < chunckedArray.length; i++) {
             Coordinate[] coordTemp = new Coordinate[chunckedArray[i].length];
             System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
-            System.out.println(" coordTemp "  +Arrays.toString(coordTemp));
             switch (geo.getGeometryType()) {
                 case "MultiPoint":
                     break;
                 case "LineString":
-                    LineString line =  geometryFactory.createLineString(coordTemp);
-                    System.out.println("line " + line);
+                    LineString line = geometryFactory.createLineString(coordTemp);
                     envelopes.add(line.getEnvelopeInternal());
                     break;
                 case "LinearRing":
@@ -166,9 +175,116 @@ public abstract class GeometryType {
             }
 
         }
-//        System.out.println("coord  " + Arrays.toString(coord));
-//        System.out.println("envelopes " + envelopes);
         return envelopes;
-        
+
+    }
+
+    /**
+     * Cut the bounding box of a geometry into smaller bounding boxes and in a
+     * specific index of the coordinate array of the geometry Implemented for
+     * LineStrings
+     *
+     * @param geo the given geometry to cut
+     * @param at index of point to cut
+     * @param parts the parts to cut the geometry in order to compute the new
+     * bounding boxes
+     * @return
+     */
+    public ArrayList<Envelope> cutGeometryEnvelopeAt(Geometry geo, int at, int parts) {
+        GeometryFactory geometryFactory = new GeometryFactory();
+        Coordinate[] coord = geo.getCoordinates();
+
+        int chunkAt = at + 1;
+        if (chunkAt < 2) {
+            chunkAt = 2;
+        }
+
+        Coordinate[][] chunckedArray = chunkArray(coord, chunkAt);
+        ArrayList<Envelope> envelopes = new ArrayList<Envelope>();
+
+        for (int i = 0; i < chunckedArray.length; i++) {
+            Coordinate[] coordTemp = new Coordinate[chunckedArray[i].length];
+            System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
+
+            int chunk = coordTemp.length / parts;
+            if (chunk < 2) {
+                chunk = 2;
+            }
+            Coordinate[][] chunckedArrayFinal = chunkArray(coordTemp, chunk);
+
+            for (int j = 0; j < chunckedArrayFinal.length; j++) {
+                coordTemp = new Coordinate[chunckedArrayFinal[j].length];
+                System.arraycopy(chunckedArrayFinal[j], 0, coordTemp, 0, chunckedArrayFinal[j].length);
+                switch (geo.getGeometryType()) {
+                    case "MultiPoint":
+                        break;
+                    case "LineString":
+                        LineString line = geometryFactory.createLineString(coordTemp);
+                        envelopes.add(line.getEnvelopeInternal());
+                        break;
+                    case "LinearRing":
+                        break;
+                    case "MultiLineString":
+                        break;
+                    case "Polygon":
+                        break;
+                    case "MultiPolygon":
+                        break;
+                    case "GeometryCollection":
+                        break;
+                }
+            }
+        }
+        return envelopes;
+
+    }
+
+    /**
+     * Pick a random double between two given doubles
+     *
+     * @param start first double
+     * @param end second double
+     * @return the selected double between start and end
+     */
+    protected double randomDouble(double start, double end) {
+        double random = new Random().nextDouble();
+        double randDouble = start + (random * (end - start));
+        return randDouble;
+    }
+
+    /**
+     * Pick n random elements of a Coordinate array
+     *
+     * @param array given array to select the Coordinates
+     * @param number number of elements to pick
+     * @return array of selected Coordinates
+     */
+    protected Coordinate[] pickNRandom(Coordinate[] array, int number) {
+        List<Coordinate> list = new ArrayList<Coordinate>(Arrays.asList(array));
+        Collections.shuffle(list);
+        list = list.subList(0, number);
+        return list.toArray(new Coordinate[number]);
+    }
+
+    /**
+     * Keep only unique elements of a Coordinate array
+     *
+     * @param coordinates array of Coordinates
+     * @return array of elements that appear only ones
+     */
+    public Coordinate[] uniqueElements(Coordinate[] coordinates) {
+        if (coordinates == null) {
+            throw new IllegalArgumentException();
+        }
+
+        List<Coordinate> result = new ArrayList<Coordinate>();
+        for (Coordinate next : coordinates) {
+            if (result.contains(next)) {
+                result.remove(next);
+            } else {
+                result.add(next);
+            }
+        }
+        return result.toArray(new Coordinate[result.size()]);
     }
 }

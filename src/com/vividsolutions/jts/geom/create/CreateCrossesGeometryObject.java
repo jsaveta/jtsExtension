@@ -18,7 +18,6 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -107,7 +106,7 @@ public class CreateCrossesGeometryObject extends GeometryType {
                         Envelope crossesEnv = null;
                         Coordinate[] internal = new Coordinate[1];
 
-                        Coordinate[] lineCoord = notIntersectingElements(lineString.getCoordinates());
+                        Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
                         //check this
                         while (crossesEnv == null) {
                             //(max - min + 1) + min
@@ -133,7 +132,7 @@ public class CreateCrossesGeometryObject extends GeometryType {
                         LineString pt = (LineString) pg.create();
                         if (pt != null) { //when mix == maxx or miny == maxy
                             Coordinate[] generatedCoords = pt.getCoordinates();
-                            
+
                             Coordinate[] newArray = new Coordinate[generatedCoords.length + 1];
                             for (int i = 0; i < newArray.length - 1; i++) {
                                 newArray[i < (generatedCoords.length / 2) ? i : i + 1] = generatedCoords[i];
@@ -382,11 +381,10 @@ public class CreateCrossesGeometryObject extends GeometryType {
             Collections.sort(minYes);
             Collections.sort(maxYes);
 
-            double e = 0;//0.01;
             //down + right
 //            System.out.println("down + right");
-            minX_ = coordX + e;
-            maxY_ = coordY - e;
+            minX_ = coordX;
+            maxY_ = coordY;
             minY_ = -90;
             maxX_ = 180;
 
@@ -404,22 +402,22 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
-                    maxX_ = minXes.get(j) - e;
+                    maxX_ = minXes.get(j);
                     break;
                 }
             }
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
-                    minY_ = maxYes.get(j) + e;
+                    minY_ = maxYes.get(j);
                 }
             }
 
             Envelope rightDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + right
-            minX_ = coordX + e;
-            minY_ = coordY + e;
+            minX_ = coordX;
+            minY_ = coordY;
             maxX_ = 180;
             maxY_ = 90;
 
@@ -437,14 +435,14 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
             for (int j = 0; j < minXes.size(); j++) {
                 if (coordX < minXes.get(j)) {
-                    maxX_ = minXes.get(j) - e;
+                    maxX_ = minXes.get(j);
                     break;
                 }
             }
 
             for (int j = 0; j < minYes.size(); j++) {
                 if (coordY < minYes.get(j)) {
-                    maxY_ = minYes.get(j) - e;
+                    maxY_ = minYes.get(j);
                     break;
                 }
             }
@@ -452,8 +450,8 @@ public class CreateCrossesGeometryObject extends GeometryType {
             Envelope rightUpEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //down + left
-            maxX_ = coordX - e;
-            maxY_ = coordY - e;
+            maxX_ = coordX;
+            maxY_ = coordY;
             minX_ = -180;
             minY_ = -90;
 
@@ -473,21 +471,21 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
-                    minX_ = maxXes.get(j) + e;
+                    minX_ = maxXes.get(j);
                 }
             }
 
             for (int j = 0; j < maxYes.size(); j++) {
                 if (coordY > maxYes.get(j)) {
-                    minY_ = maxYes.get(j) + e;
+                    minY_ = maxYes.get(j);
                 }
             }
 
             Envelope leftDownEnv = new Envelope(minX_, maxX_, minY_, maxY_);
 
             //up + left
-            maxX_ = coordX - e;
-            minY_ = coordY + e;
+            maxX_ = coordX;
+            minY_ = coordY;
             minX_ = -180;
             maxY_ = 90;
 
@@ -505,13 +503,13 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
             for (int j = 0; j < maxXes.size(); j++) {
                 if (coordX > maxXes.get(j)) {
-                    minX_ = maxXes.get(j) + e;
+                    minX_ = maxXes.get(j);
                 }
             }
 
             for (int j = 0; j < minYes.size(); j++) {
                 if (coordY < minYes.get(j)) {
-                    maxY_ = minYes.get(j) - e;
+                    maxY_ = minYes.get(j);
                     break;
                 }
             }

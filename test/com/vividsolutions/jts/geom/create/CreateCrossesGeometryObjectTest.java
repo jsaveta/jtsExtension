@@ -43,7 +43,7 @@ public class CreateCrossesGeometryObjectTest extends TestCase {
         GeometryFactory geometryFactory = new GeometryFactory();
         WKTReader reader = new WKTReader(geometryFactory);
         Random rand = new Random();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 100000; i++) {
             System.out.println(i);
 
             LineStringGenerator pg = new LineStringGenerator();
@@ -59,11 +59,9 @@ public class CreateCrossesGeometryObjectTest extends TestCase {
             CreateCrossesGeometryObject instanceL1 = new CreateCrossesGeometryObject(line, GeometryType.GeometryTypes.LineString);
 
             Geometry resultL1 = instanceL1.generateGeometry();
-//            System.out.println("line: " + line + " size " + line.getCoordinates().length);
+            System.out.println("line: " + line + " size " + line.getCoordinates().length);
             if (resultL1 != null) {
-//                System.out.println("result: " + resultL1 + " size " + resultL1.getCoordinates().length);
-//                System.out.println("resultL1.crosses(line) " + resultL1.crosses(line));
-//                System.out.println("intersection " + line.intersection(resultL1));
+                System.out.println("result: " + resultL1 + " size " + resultL1.getCoordinates().length);
 
 //            LineString line = (LineString) reader.read("LINESTRING( 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366, 1 1)");
 //            LineString resultL1 = (LineString) reader.read("LINESTRING(-5.998535 6.521366, 18.918457 3.501085, 19.045658 3.531829, 19.164791 3.564040, 19.281864 3.612011, -5.998535 6.521366)");
