@@ -33,11 +33,11 @@ public abstract class GeometryType {
     /**
      * enum if all Geometry types
      */
-    protected static enum GeometryTypes {
+    public static enum GeometryTypes {
         Point, MultiPoint, LineString, LinearRing, MultiLineString, Polygon, MultiPolygon, GeometryCollection
     }
 
-    protected Class<?> selectGeometryType(GeometryTypes geometry) {
+    public Class<?> selectGeometryType(GeometryTypes geometry) {
         try {
             switch (geometry) {
                 case Point:
