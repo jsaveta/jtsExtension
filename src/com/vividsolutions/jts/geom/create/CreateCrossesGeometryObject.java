@@ -121,9 +121,6 @@ public class CreateCrossesGeometryObject extends GeometryType {
                         if (coordsToGenerate < 4) {
                             coordsToGenerate = 4;
                         }
-                        if (coordsToGenerate > 350) {
-                            coordsToGenerate = 350;
-                        }
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         pg.setNumberPoints(coordsToGenerate);

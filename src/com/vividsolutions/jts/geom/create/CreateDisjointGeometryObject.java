@@ -111,10 +111,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         if (coordsToGenerate < 4) {
                             coordsToGenerate = 4;
                         }
-                        if (coordsToGenerate > 350) {
-                            coordsToGenerate = 350;
-                        }
-
                         pg.setNumberPoints(coordsToGenerate);
 
                         //or at least for horx etc

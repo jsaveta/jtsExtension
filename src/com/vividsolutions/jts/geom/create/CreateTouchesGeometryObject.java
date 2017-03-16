@@ -130,9 +130,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         if (coordsToGenerate < 4) {
                             coordsToGenerate = 4;
                         }
-                        if (coordsToGenerate > 350) {
-                            coordsToGenerate = 350;
-                        }
+                        
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         //default is ARC and need more points - check this

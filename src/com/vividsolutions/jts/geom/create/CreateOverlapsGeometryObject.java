@@ -103,16 +103,16 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                         Random randomGenerator = new Random();
                         int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 1) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, lineString.getCoordinates().length / 2);
-//                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
-//                        LineString line = lineArray[0];
-//                        if (rand == 1) {
-//                            line = lineArray[lineArray.length - 1];
-//                        }
+                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
+                        LineString line = lineArray[0];
+                        if (rand == 1) {
+                            line = lineArray[lineArray.length - 1];
+                        }
 
                         //remove comments above and delete the following two lines when the given lines are real  
                         //because now it generates the exact same linestring and does not follow the definition of overlaps
-                        int rand = 0;
-                        LineString line = lineArray[rand];
+//                        int rand = 0;
+//                        LineString line = lineArray[rand];
 
                         int length = lineString.getCoordinates().length;
                         int poinsToIntersect = line.getCoordinates().length;
@@ -146,11 +146,7 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                                 //check this
                                 //or HORZ
                                 pg.setGenerationAlgorithm(LineStringGenerator.VERT);
-                            }
-                            if (pointsToGenerate > 350) {
-                                return null; //fix this in order to be able to create as many points
-                                //as we need to remain dim(a) = dim(b)
-                            }
+                            }                            
                             pg.setNumberPoints(pointsToGenerate);
                             LineString pt = (LineString) pg.create();
                             //merge all points and create a new linestring

@@ -110,9 +110,6 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                         if (pointsToGenerate < 4) {
                             pointsToGenerate = 4;
                         }
-                        if (pointsToGenerate > 350) {
-                            pointsToGenerate = 350;
-                        }
                         
                         //generate the rest of points 
                         LineStringGenerator pg = new LineStringGenerator();

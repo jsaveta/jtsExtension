@@ -42,7 +42,7 @@ public class CreateTouchesGeometryObjectTest extends TestCase {
         GeometryFactory geometryFactory = new GeometryFactory();
         Random rand = new Random();
         //test for 100.000 random linestrings
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 10000; i++) {
 
             LineStringGenerator pg = new LineStringGenerator();
             pg.setGeometryFactory(geometryFactory);
@@ -50,7 +50,7 @@ public class CreateTouchesGeometryObjectTest extends TestCase {
             pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
 
             //10 to 350 points (check generation of larger linestrings)
-            int numPoints = rand.nextInt(350) + 10;
+            int numPoints = rand.nextInt(1000) + 10;
             System.out.println("numPoints " + numPoints);
             pg.setNumberPoints(numPoints);
 
