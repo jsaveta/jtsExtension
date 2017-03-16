@@ -118,12 +118,6 @@ public class LineStringGenerator extends GeometryGenerator {
         double y = boundingBox.getMinY(); // base y
         double dy = boundingBox.getMaxY() - y;
 
-        System.out.println("x " + x);
-        System.out.println("dx " + dx);
-        System.out.println("y " + y);
-        System.out.println("dy " + dy);
-        System.out.println("geometryFactory " + geometryFactory.getPrecisionModel());
-
         for (int i = 0; i < RUNS; i++) {
             switch (getGenerationAlgorithm()) {
                 case VERT:
