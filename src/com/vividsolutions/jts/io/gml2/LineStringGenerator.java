@@ -144,10 +144,11 @@ public class LineStringGenerator extends GeometryGenerator {
 
     private static void fillVert(double x, double dx, double y, double dy, Coordinate[] coords, GeometryFactory gf) {
         Random random = new Random();
-        double step = 0.001;
+//        double step = 0.001;
+        double step = dy / (double) (coords.length * 10);
         //I have changed Math.random() with randY and randX
         double randX = random.nextDouble() * step;
-        
+
         double fx = x + randX * dx;
         double ry = dy; // remainder of y distance
         coords[0] = new Coordinate(fx, y);
@@ -164,7 +165,9 @@ public class LineStringGenerator extends GeometryGenerator {
 
     private static void fillHorz(double x, double dx, double y, double dy, Coordinate[] coords, GeometryFactory gf) {
         Random random = new Random();
-        double step = 0.001;
+//        double step = 0.001;
+        double step = dx / (double) (coords.length * 10);
+        System.out.println("step " + step);
         //I have changed Math.random() with randY and randX
 
         double randY = random.nextDouble() * step;
