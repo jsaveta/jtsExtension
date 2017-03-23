@@ -33,8 +33,8 @@ public class CreateContainsGeometryObject extends GeometryType {
     }
 
     public Geometry generateGeometry() {
-        String givenGeometryType = this.given.getGeometryType();       
-	GeometryFactory geometryFactory = new GeometryFactory();
+        String givenGeometryType = this.given.getGeometryType();
+        GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
@@ -98,6 +98,13 @@ public class CreateContainsGeometryObject extends GeometryType {
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
                         int randomInt = randomGenerator.nextInt(lineArray.length);
                         LineString line = lineArray[randomInt];
+
+                        while (!lineString.contains(line)) {
+                            chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                            lineArray = getLineStringArray(lineString, chunk);
+                            randomInt = randomGenerator.nextInt(lineArray.length);
+                            line = lineArray[randomInt];
+                        }
                         this.returned = line;
                         break;
                     case "LinearRing":
