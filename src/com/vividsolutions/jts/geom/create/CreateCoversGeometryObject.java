@@ -5,6 +5,7 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -25,19 +26,17 @@ public class CreateCoversGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
-//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateCoversGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-//        this.chunk = 2;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
     }
 
     public Geometry generateGeometry() {
-        String givenGeometryType = this.given.getGeometryType();       
-	GeometryFactory geometryFactory = new GeometryFactory();
+        String givenGeometryType = this.given.getGeometryType();
+        GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
@@ -97,14 +96,19 @@ public class CreateCoversGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        //modify chunk
-                        //covers is same as contains regarding linestrings ??
-
+                        
                         Random randomGenerator = new Random();
                         int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
                         int randomInt = randomGenerator.nextInt(lineArray.length);
                         LineString line = lineArray[randomInt];
+                        
+                        while (!lineString.covers(line)) {
+                            chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                            lineArray = getLineStringArray(lineString, chunk);
+                            randomInt = randomGenerator.nextInt(lineArray.length);
+                            line = lineArray[randomInt];
+                        }
                         this.returned = line;
                         break;
                     case "LinearRing":
