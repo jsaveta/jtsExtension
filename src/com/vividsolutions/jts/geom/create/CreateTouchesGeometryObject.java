@@ -115,13 +115,20 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
                                 //check this -> coin.nextInt(lineCoord.length - 4)
                                 //(max - min + 1) + min
-                                internal[0] = lineCoord[coin.nextInt(lineCoord.length - 4) + 2];
+                                int r1 = lineCoord.length - 4;
+                                if(r1 < 0){r1 = 0;}
+                                
+                                internal[0] = lineCoord[coin.nextInt(r1) + 2];
                                 touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
                             } else {
                                 Geometry bound = lineString.getBoundary();
                                 Coordinate boundCoords[] = bound.getCoordinates();
                                 selectedBoundCoord = new Coordinate[1];
-                                selectedBoundCoord[0] = boundCoords[coin.nextInt(boundCoords.length)];
+                                
+                                int r2 = boundCoords.length;
+                                if(r2 < 0){r2 = 0;}
+                                        
+                                selectedBoundCoord[0] = boundCoords[coin.nextInt(r2)];
                                 touchesEnv = generateTouchesEnvelope(lineString, selectedBoundCoord[0]);
                             }
                         }

@@ -101,7 +101,9 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                         break;
                     case "LineString":
                         Random randomGenerator = new Random();
-                        int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 1) + 2;
+//                        int r1 = lineString.getCoordinates().length - 1;
+//                        if(r1 < 0) {r1 = 0;}
+//                        int chunk = randomGenerator.nextInt(r1) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, lineString.getCoordinates().length / 2);
                         int rand = randomGenerator.nextInt(2); //keep first or last part of the line
                         LineString line = lineArray[0];

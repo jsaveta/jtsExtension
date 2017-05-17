@@ -26,9 +26,11 @@ public class CreateCoversGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
+//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateCoversGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
+//        this.chunk = 2;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
@@ -97,16 +99,24 @@ public class CreateCoversGeometryObject extends GeometryType {
                         break;
                     case "LineString":
                         
+                        //do that for contains also,
+                        //push on github 
+                        // take new jar
                         Random randomGenerator = new Random();
-                        int chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                        int r1 = lineString.getCoordinates().length - 2;
+                        if(r1 < 0){r1 = 0;}
+                        int chunk = randomGenerator.nextInt(r1) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
-                        int randomInt = randomGenerator.nextInt(lineArray.length);
+                        
+                        int r2 = lineArray.length;
+                        if(r2 < 0){r2 = 0;}
+                        int randomInt = randomGenerator.nextInt(r2);
                         LineString line = lineArray[randomInt];
                         
                         while (!lineString.covers(line)) {
-                            chunk = randomGenerator.nextInt(lineString.getCoordinates().length - 2) + 2;
+                            chunk = randomGenerator.nextInt(r1) + 2;
                             lineArray = getLineStringArray(lineString, chunk);
-                            randomInt = randomGenerator.nextInt(lineArray.length);
+                            randomInt = randomGenerator.nextInt(r2);
                             line = lineArray[randomInt];
                         }
                         this.returned = line;

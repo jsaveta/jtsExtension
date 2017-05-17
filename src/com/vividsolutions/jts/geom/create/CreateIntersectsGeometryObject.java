@@ -39,8 +39,8 @@ public class CreateIntersectsGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
-        
-	GeometryFactory geometryFactory = new GeometryFactory();
+
+        GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = this.given; //in case that there is nothing to return
 
         switch (givenGeometryType) {
@@ -105,12 +105,15 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                         //keep n random points of given linestring
                         Random randomGenerator = new Random();
                         int length = lineString.getCoordinates().length;
-                        int poinsToIntersect = randomGenerator.nextInt(length - 2) + 1;
+
+                        int r1 = length - 2;
+                        if(r1 < 0){r1 = 0;}
+                        int poinsToIntersect = randomGenerator.nextInt(r1) + 1;
                         int pointsToGenerate = length - poinsToIntersect;
                         if (pointsToGenerate < 4) {
                             pointsToGenerate = 4;
                         }
-                        
+
                         //generate the rest of points 
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
