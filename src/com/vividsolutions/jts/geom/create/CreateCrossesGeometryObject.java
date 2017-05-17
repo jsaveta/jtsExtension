@@ -111,7 +111,7 @@ public class CreateCrossesGeometryObject extends GeometryType {
                         while (crossesEnv == null) {
                             //(max - min + 1) + min
                             int r1 = lineCoord.length - 4;
-                            if(r1 < 0){r1 = 0;}
+                            if(r1 <= 0){r1 = 1;}
                             internal[0] = lineCoord[coin.nextInt(r1) + 2];
 //                            System.out.println("internal[0] " + internal[0]);
                             crossesEnv = generateCrossesEnvelope(lineString, internal[0]);

@@ -107,7 +107,7 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                         int length = lineString.getCoordinates().length;
 
                         int r1 = length - 2;
-                        if(r1 < 0){r1 = 0;}
+                        if(r1 <= 0){r1 = 1;}
                         int poinsToIntersect = randomGenerator.nextInt(r1) + 1;
                         int pointsToGenerate = length - poinsToIntersect;
                         if (pointsToGenerate < 4) {

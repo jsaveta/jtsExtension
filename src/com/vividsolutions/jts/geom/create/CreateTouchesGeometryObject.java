@@ -116,7 +116,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 //check this -> coin.nextInt(lineCoord.length - 4)
                                 //(max - min + 1) + min
                                 int r1 = lineCoord.length - 4;
-                                if(r1 < 0){r1 = 0;}
+                                if(r1 <= 0){r1 = 1;}
                                 
                                 internal[0] = lineCoord[coin.nextInt(r1) + 2];
                                 touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
@@ -126,7 +126,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 selectedBoundCoord = new Coordinate[1];
                                 
                                 int r2 = boundCoords.length;
-                                if(r2 < 0){r2 = 0;}
+                                if(r2 <= 0){r2 = 1;}
                                         
                                 selectedBoundCoord[0] = boundCoords[coin.nextInt(r2)];
                                 touchesEnv = generateTouchesEnvelope(lineString, selectedBoundCoord[0]);
