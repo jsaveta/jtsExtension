@@ -116,18 +116,24 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 //check this -> coin.nextInt(lineCoord.length - 4)
                                 //(max - min + 1) + min
                                 int r1 = lineCoord.length - 4;
-                                if(r1 <= 0){r1 = 1;}
-                                
-                                internal[0] = lineCoord[coin.nextInt(r1) + 2];
+                                if (r1 <= 0) {
+                                    r1 = 1;
+                                    internal[0] = lineCoord[coin.nextInt(r1)];
+                                } else {
+                                    internal[0] = lineCoord[coin.nextInt(r1) + 2];
+                                }
+
                                 touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
                             } else {
                                 Geometry bound = lineString.getBoundary();
                                 Coordinate boundCoords[] = bound.getCoordinates();
                                 selectedBoundCoord = new Coordinate[1];
-                                
+
                                 int r2 = boundCoords.length;
-                                if(r2 <= 0){r2 = 1;}
-                                        
+                                if (r2 <= 0) {
+                                    r2 = 1;
+                                }
+
                                 selectedBoundCoord[0] = boundCoords[coin.nextInt(r2)];
                                 touchesEnv = generateTouchesEnvelope(lineString, selectedBoundCoord[0]);
                             }
@@ -137,7 +143,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                         if (coordsToGenerate < 4) {
                             coordsToGenerate = 4;
                         }
-                        
+
                         LineStringGenerator pg = new LineStringGenerator();
                         pg.setGeometryFactory(geometryFactory);
                         //default is ARC and need more points - check this
