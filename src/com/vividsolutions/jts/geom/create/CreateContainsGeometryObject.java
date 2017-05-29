@@ -95,16 +95,16 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "LineString":
                         Random randomGenerator = new Random();
                         int r1 = lineString.getCoordinates().length - 2;
-                        
-                        if(r1 <= 0){
+
+                        if (r1 <= 0) {
                             r1 = 1;
                         }
-                        
+
                         int chunk = randomGenerator.nextInt(r1) + 2;
-                        LineString[] lineArray = getLineStringArray(lineString, chunk);                        
-                        
+                        LineString[] lineArray = getLineStringArray(lineString, chunk);
+
                         int r2 = lineArray.length;
-                        if(r2 <= 0){
+                        if (r2 <= 0) {
                             r2 = 1;
                         }
                         int randomInt = randomGenerator.nextInt(r2);
@@ -113,6 +113,10 @@ public class CreateContainsGeometryObject extends GeometryType {
                         while (!lineString.contains(line)) {
                             chunk = randomGenerator.nextInt(r1) + 2;
                             lineArray = getLineStringArray(lineString, chunk);
+                            r2 = lineArray.length;
+                            if (r2 <= 0) {
+                                r2 = 1;
+                            }
                             randomInt = randomGenerator.nextInt(r2);
                             line = lineArray[randomInt];
                         }

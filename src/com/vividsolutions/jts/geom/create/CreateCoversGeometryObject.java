@@ -5,7 +5,6 @@
  */
 package com.vividsolutions.jts.geom.create;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -15,7 +14,7 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -98,24 +97,30 @@ public class CreateCoversGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        
+
                         //do that for contains also,
                         //push on github 
                         // take new jar
                         Random randomGenerator = new Random();
                         int r1 = lineString.getCoordinates().length - 2;
-                        if(r1 <= 0){r1 = 1;}
+                        if (r1 <= 0) {
+                            r1 = 1;
+                        }
                         int chunk = randomGenerator.nextInt(r1) + 2;
                         LineString[] lineArray = getLineStringArray(lineString, chunk);
-                        
-                        int r2 = lineArray.length;
-                        if(r2 <= 0){r2 = 1;}
+                        int r2 = lineArray.length - 2;
+                        if (r2 <= 0) {
+                            r2 = 1;
+                        }
                         int randomInt = randomGenerator.nextInt(r2);
                         LineString line = lineArray[randomInt];
-                        
                         while (!lineString.covers(line)) {
                             chunk = randomGenerator.nextInt(r1) + 2;
                             lineArray = getLineStringArray(lineString, chunk);
+                            r2 = lineArray.length - 2;
+                            if (r2 <= 0) {
+                                r2 = 1;
+                            }
                             randomInt = randomGenerator.nextInt(r2);
                             line = lineArray[randomInt];
                         }
