@@ -15,7 +15,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.geom.PrecisionModel;
 
 /**
  *
@@ -105,7 +104,7 @@ public class CreateEqualGeometryObject extends GeometryType {
 
                         //I split a line to multilines 
                         //how can i split this randomly?
-                        LineString[] lineArray = getLineStringArray(lineString, this.chunk);
+                        LineString[] lineArray = cutLineString(lineString, this.chunk);
                         MultiLineString multiline = geometryFactory.createMultiLineString(lineArray);
                         this.returned = multiline;
 
@@ -122,7 +121,7 @@ public class CreateEqualGeometryObject extends GeometryType {
 
                     case "GeometryCollection":
                         //equalsTopo does not support GeometryCollection arguments
-                        LineString[] lineArrayC = getLineStringArray(lineString, this.chunk);
+                        LineString[] lineArrayC = cutLineString(lineString, this.chunk);
                         GeometryCollection geoCol = geometryFactory.createGeometryCollection(lineArrayC);
                         this.returned = geoCol;
 
@@ -141,7 +140,7 @@ public class CreateEqualGeometryObject extends GeometryType {
                         break;
                     case "MultiLineString":
                         LineString lineM = geometryFactory.createLineString(linearRing.getCoordinates());
-                        LineString[] lineArray = getLineStringArray(lineM, this.chunk);
+                        LineString[] lineArray = cutLineString(lineM, this.chunk);
                         MultiLineString multiline = geometryFactory.createMultiLineString(lineArray);
                         this.returned = multiline;
                         break;
@@ -154,7 +153,7 @@ public class CreateEqualGeometryObject extends GeometryType {
                     case "GeometryCollection":
                         //equalsTopo does not support GeometryCollection arguments
                         LineString lineGC = geometryFactory.createLineString(linearRing.getCoordinates());
-                        LineString[] lineArrayC = getLineStringArray(lineGC, this.chunk);
+                        LineString[] lineArrayC = cutLineString(lineGC, this.chunk);
                         GeometryCollection geoCol = geometryFactory.createGeometryCollection(lineArrayC);
                         this.returned = geoCol;
 

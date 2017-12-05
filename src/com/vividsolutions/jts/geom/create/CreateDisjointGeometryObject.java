@@ -16,6 +16,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import com.vividsolutions.jts.io.gml2.PolygonGenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,8 +41,8 @@ public class CreateDisjointGeometryObject extends GeometryType {
     }
 
     public Geometry generateGeometry() {
+        
         String givenGeometryType = this.given.getGeometryType();
-
         GeometryFactory geometryFactory = new GeometryFactory();
         this.returned = null;
 
@@ -94,6 +95,17 @@ public class CreateDisjointGeometryObject extends GeometryType {
                 break;
             case "LineString":
                 LineString lineString = (LineString) this.given;
+                Random rn = new Random();
+                //check Too few points for Arc exception                       
+                int coordsToGenerate = lineString.getCoordinates().length;
+                if (coordsToGenerate < 4) {
+                    coordsToGenerate = 4;
+                }
+
+                //or at least for horx etc
+                //(max - min + 1) + min
+                int parts = rn.nextInt(4) + 3;
+                Envelope disjEnv = generateDisjointEnvelope(lineString, parts);
 
                 switch (this.returnedGeometry.getSimpleName()) {
                     case "Point":
@@ -102,28 +114,13 @@ public class CreateDisjointGeometryObject extends GeometryType {
                         break;
                     case "LineString":
 
-                        LineStringGenerator pg = new LineStringGenerator();
-                        pg.setGeometryFactory(geometryFactory);
+                        LineStringGenerator ln = new LineStringGenerator();
+                        ln.setGeometryFactory(geometryFactory);
+                        ln.setNumberPoints(coordsToGenerate);
 
-                        //check Too few points for Arc exception
-                        //check if num of points more than ~ 350                         
-                        int coordsToGenerate = lineString.getCoordinates().length;
-                        if (coordsToGenerate < 4) {
-                            coordsToGenerate = 4;
-                        }
-                        pg.setNumberPoints(coordsToGenerate);
-
-                        //or at least for horx etc
-                        Random rn = new Random();
-                        //(max - min + 1) + min
-                        int parts = rn.nextInt(4) + 3;
-                        Envelope disjEnv = generateDisjointEnvelope(lineString, parts); 
                         if (!disjEnv.isNull()) {
-                            pg.setBoundingBox(disjEnv);
-                            LineString pt = (LineString) pg.create();
-//                            if (pt == null) {
-//                                throw new NullPointerException("NullPointerException caught");
-//                            }
+                            ln.setBoundingBox(disjEnv);
+                            LineString pt = (LineString) ln.create();
                             this.returned = pt;
                         }
 
@@ -133,6 +130,17 @@ public class CreateDisjointGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        PolygonGenerator pg = new PolygonGenerator();
+                        pg.setGeometryFactory(geometryFactory);
+                        pg.setNumberPoints(coordsToGenerate);
+                        pg.setGenerationAlgorithm(PolygonGenerator.ARC);
+
+                        if (!disjEnv.isNull()) {
+                            pg.setBoundingBox(disjEnv);
+                            Polygon pgn = (Polygon) pg.create();
+                            this.returned = pgn;
+                        }
+
                         break;
                     case "MultiPolygon":
                         break;

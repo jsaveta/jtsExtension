@@ -5,6 +5,7 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -14,7 +15,6 @@ import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -25,11 +25,9 @@ public class CreateCoversGeometryObject extends GeometryType {
 
     protected Geometry given;
     protected Geometry returned;
-//    protected int chunk;
     protected Class<?> returnedGeometry;
 
     public CreateCoversGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
-//        this.chunk = 2;
         this.given = givenGeometry;
         this.returnedGeometry = selectGeometryType(geometry);
 
@@ -98,16 +96,13 @@ public class CreateCoversGeometryObject extends GeometryType {
                         break;
                     case "LineString":
 
-                        //do that for contains also,
-                        //push on github 
-                        // take new jar
                         Random randomGenerator = new Random();
                         int r1 = lineString.getCoordinates().length - 2;
                         if (r1 <= 0) {
                             r1 = 1;
                         }
                         int chunk = randomGenerator.nextInt(r1) + 2;
-                        LineString[] lineArray = getLineStringArray(lineString, chunk);
+                        LineString[] lineArray = cutLineString(lineString, chunk);
                         int r2 = lineArray.length - 2;
                         if (r2 <= 0) {
                             r2 = 1;
@@ -116,7 +111,7 @@ public class CreateCoversGeometryObject extends GeometryType {
                         LineString line = lineArray[randomInt];
                         while (!lineString.covers(line)) {
                             chunk = randomGenerator.nextInt(r1) + 2;
-                            lineArray = getLineStringArray(lineString, chunk);
+                            lineArray = cutLineString(lineString, chunk);
                             r2 = lineArray.length - 2;
                             if (r2 <= 0) {
                                 r2 = 1;
@@ -131,6 +126,17 @@ public class CreateCoversGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        
+                        Coordinate[] newCoords = new Coordinate[lineString.getCoordinates().length + 1];
+                        System.arraycopy(lineString.getCoordinates(), 0, newCoords, 0, newCoords.length - 1);
+                        newCoords[newCoords.length - 1] = lineString.getCoordinates()[0];
+                        Polygon poly = geometryFactory.createPolygon(newCoords);
+                        poly = (Polygon) poly.convexHull().buffer(1);
+                        
+                        if (poly instanceof Polygon) {
+                            this.returned = poly;
+                        } 
+
                         break;
                     case "MultiPolygon":
                         break;

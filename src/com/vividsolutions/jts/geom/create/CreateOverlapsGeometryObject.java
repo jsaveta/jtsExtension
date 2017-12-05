@@ -100,16 +100,14 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-                        Random randomGenerator = new Random();
-//                        int r1 = lineString.getCoordinates().length - 1;
-//                        if(r1 < 0) {r1 = 0;}
-//                        int chunk = randomGenerator.nextInt(r1) + 2;
+//                        Random randomGenerator = new Random();
+
                         int chunck = lineString.getCoordinates().length / 2;
                         if (lineString.getCoordinates().length == 3) {
                             chunk = 2;
                         }
 
-                        LineString[] lineArray = getLineStringArray(lineString, chunck);
+                        LineString[] lineArray = cutLineString(lineString, chunck);
 //                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
 //                        System.out.println("rand " +rand);
 //                        LineString line = lineArray[0];
@@ -118,7 +116,7 @@ public class CreateOverlapsGeometryObject extends GeometryType {
 //                        }
 
                         //remove comments above and delete the following two lines when the given lines are real  
-                        //because now it generates the exact same linestring and does not follow the definition of overlaps
+                        //because now it generates the exact same linestring and do not follow the definition of overlaps
                         int rand = 0;
                         LineString line = lineArray[rand];
 

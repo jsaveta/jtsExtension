@@ -17,6 +17,7 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import com.vividsolutions.jts.io.gml2.PolygonGenerator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -107,35 +108,35 @@ public class CreateCrossesGeometryObject extends GeometryType {
                         Coordinate[] internal = new Coordinate[1];
 
                         Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
-                        //check this
-                        while (crossesEnv == null) {
+
+                        //makes sure there is some "space" to generate a linestrin in it
+                        while (crossesEnv == null || crossesEnv.getArea() < 5.0) { //why 5.0?
                             //(max - min + 1) + min
                             int r1 = lineCoord.length - 4;
-                            if(r1 <= 0){r1 = 1;}
-                            
                             if (r1 <= 0) {
-                                    r1 = 1;
-                                    internal[0] = lineCoord[coin.nextInt(r1)];
-                                } else {
-                                    internal[0] = lineCoord[coin.nextInt(r1) + 2];
-                                }
-                            
-//                            System.out.println("internal[0] " + internal[0]);
+                                r1 = 1;
+                            }
+
+                            if (r1 <= 0) {
+                                r1 = 1;
+                                internal[0] = lineCoord[coin.nextInt(r1)];
+                            } else {
+                                internal[0] = lineCoord[coin.nextInt(r1) + 2];
+                            }
+
                             crossesEnv = generateCrossesEnvelope(lineString, internal[0]);
                         }
 
-                        //default is ARC and need more points - check this
-                        //pg.setGenerationAlgorithm(LineStringGenerator.ARC);
                         int coordsToGenerate = lineString.getNumPoints() - 1;
                         if (coordsToGenerate < 4) {
                             coordsToGenerate = 4;
                         }
-                        LineStringGenerator pg = new LineStringGenerator();
-                        pg.setGeometryFactory(geometryFactory);
-                        pg.setNumberPoints(coordsToGenerate);
-
-                        pg.setBoundingBox(crossesEnv);
-                        LineString pt = (LineString) pg.create();
+                        LineStringGenerator lg = new LineStringGenerator();
+                        lg.setGeometryFactory(geometryFactory);
+                        lg.setNumberPoints(coordsToGenerate);
+                        lg.setGenerationAlgorithm(LineStringGenerator.ARC);
+                        lg.setBoundingBox(crossesEnv);
+                        LineString pt = (LineString) lg.create();
                         if (pt != null) { //when mix == maxx or miny == maxy
                             Coordinate[] generatedCoords = pt.getCoordinates();
 
@@ -155,7 +156,26 @@ public class CreateCrossesGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        ArrayList<Envelope> crossesPolyEnvelopes = cutGeometryEnvelopeAt(lineString, lineString.getCoordinates().length / 2, 2);
+                        Random rnd = new Random();
+                        int i = rnd.nextInt(crossesPolyEnvelopes.size());
+                        Envelope crossesPolyEnv = crossesPolyEnvelopes.get(i);
+
+                        int cToGenerate = lineString.getNumPoints() - 1;
+                        if (cToGenerate < 4) {
+                            cToGenerate = 4;
+                        }
+                        PolygonGenerator pg = new PolygonGenerator();
+                        pg.setGeometryFactory(geometryFactory);
+                        pg.setNumberPoints(cToGenerate);
+                        pg.setBoundingBox(crossesPolyEnv);
+                        Polygon poly = (Polygon) pg.create();
+                        if (poly != null) {
+                            poly = (Polygon) fixInvalidGeometry(poly);
+                            this.returned = poly;
+                        }
                         break;
+
                     case "MultiPolygon":
                         break;
                     case "GeometryCollection":
@@ -569,7 +589,6 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
             }
         }
-//        System.out.println("crossesEnv " + crossesEnv);
         return crossesEnv;
     }
 }

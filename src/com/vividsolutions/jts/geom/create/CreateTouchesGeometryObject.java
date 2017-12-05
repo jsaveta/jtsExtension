@@ -17,9 +17,14 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import com.vividsolutions.jts.io.gml2.PointGenerator;
+import com.vividsolutions.jts.io.gml2.PolygonGenerator;
+import com.vividsolutions.jts.operation.polygonize.Polygonizer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -96,6 +101,7 @@ public class CreateTouchesGeometryObject extends GeometryType {
                 break;
             case "LineString":
                 LineString lineString = (LineString) this.given;
+                int lineLength = lineString.getCoordinates().length;
 
                 switch (this.returnedGeometry.getSimpleName()) {
                     case "Point":
@@ -105,12 +111,13 @@ public class CreateTouchesGeometryObject extends GeometryType {
                     case "LineString":
                         Random coin = new Random();
                         Envelope touchesEnv = null;
-                        Coordinate[] selectedBoundCoord = null;
-                        Coordinate[] internal = new Coordinate[1];
+                        Coordinate[] boundCoord = null;
+                        Coordinate[] internalCoord = new Coordinate[1];
                         int cases = 1;
                         //CHECK IF: is it possible to never end?
                         while (touchesEnv == null) {
                             cases = coin.nextInt(3);
+                            //if internal
                             if (cases == 2) {
                                 Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
                                 //check this -> coin.nextInt(lineCoord.length - 4)
@@ -118,24 +125,25 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 int r1 = lineCoord.length - 4;
                                 if (r1 <= 0) {
                                     r1 = 1;
-                                    internal[0] = lineCoord[coin.nextInt(r1)];
+                                    internalCoord[0] = lineCoord[coin.nextInt(r1)];
                                 } else {
-                                    internal[0] = lineCoord[coin.nextInt(r1) + 2];
+                                    internalCoord[0] = lineCoord[coin.nextInt(r1) + 2];
                                 }
 
-                                touchesEnv = generateTouchesEnvelope(lineString, internal[0]);
-                            } else {
+                                touchesEnv = generateTouchesEnvelope(lineString, internalCoord[0]);
+                            } //if boundary
+                            else {
                                 Geometry bound = lineString.getBoundary();
                                 Coordinate boundCoords[] = bound.getCoordinates();
-                                selectedBoundCoord = new Coordinate[1];
+                                boundCoord = new Coordinate[1];
 
                                 int r2 = boundCoords.length;
                                 if (r2 <= 0) {
                                     r2 = 1;
                                 }
 
-                                selectedBoundCoord[0] = boundCoords[coin.nextInt(r2)];
-                                touchesEnv = generateTouchesEnvelope(lineString, selectedBoundCoord[0]);
+                                boundCoord[0] = boundCoords[coin.nextInt(r2)];
+                                touchesEnv = generateTouchesEnvelope(lineString, boundCoord[0]);
                             }
                         }
 
@@ -144,30 +152,30 @@ public class CreateTouchesGeometryObject extends GeometryType {
                             coordsToGenerate = 4;
                         }
 
-                        LineStringGenerator pg = new LineStringGenerator();
-                        pg.setGeometryFactory(geometryFactory);
+                        LineStringGenerator lg = new LineStringGenerator();
+                        lg.setGeometryFactory(geometryFactory);
                         //default is ARC and need more points - check this
-//                        pg.setGenerationAlgorithm(LineStringGenerator.ARC);
-                        pg.setNumberPoints(coordsToGenerate);
+//                      lg.setGenerationAlgorithm(LineStringGenerator.ARC);
+                        lg.setNumberPoints(coordsToGenerate);
 
                         Coordinate[] coords;
 
                         switch (cases) {
                             //BB
                             case 0:
-                                pg.setBoundingBox(touchesEnv);
-                                LineString pt_0 = (LineString) pg.create();
+                                lg.setBoundingBox(touchesEnv);
+                                LineString pt_0 = (LineString) lg.create();
                                 if (pt_0 != null) {
                                     Coordinate[] generatedCoords_0 = pt_0.getCoordinates();
 
                                     int order = coin.nextInt(2);
                                     switch (order) {
                                         case 0:
-                                            coords = concatenate(selectedBoundCoord, generatedCoords_0);
+                                            coords = concatenate(boundCoord, generatedCoords_0);
                                             this.returned = geometryFactory.createLineString(coords);
                                             break;
                                         case 1:
-                                            coords = concatenate(generatedCoords_0, selectedBoundCoord);
+                                            coords = concatenate(generatedCoords_0, boundCoord);
                                             this.returned = geometryFactory.createLineString(coords);
                                             break;
                                     }
@@ -175,13 +183,13 @@ public class CreateTouchesGeometryObject extends GeometryType {
                                 break;
                             //BI
                             case 1:
-                                pg.setBoundingBox(touchesEnv);
+                                lg.setBoundingBox(touchesEnv);
 
-                                LineString pt_1 = (LineString) pg.create();
+                                LineString pt_1 = (LineString) lg.create();
                                 if (pt_1 != null) {
                                     Coordinate[] generatedCoords_1 = pt_1.getCoordinates();
 
-                                    coords = concatenate(selectedBoundCoord, generatedCoords_1);
+                                    coords = concatenate(boundCoord, generatedCoords_1);
                                     Collections.shuffle(Arrays.asList(coords));
                                     this.returned = geometryFactory.createLineString(coords);
                                 }
@@ -189,18 +197,18 @@ public class CreateTouchesGeometryObject extends GeometryType {
 
                             //IB
                             case 2:
-                                pg.setBoundingBox(touchesEnv);
-                                LineString pt_2 = (LineString) pg.create();
+                                lg.setBoundingBox(touchesEnv);
+                                LineString pt_2 = (LineString) lg.create();
                                 if (pt_2 != null) {
                                     Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
                                     int ord = coin.nextInt(2);
                                     switch (ord) {
                                         case 0:
-                                            coords = concatenate(internal, generatedCoords_2);
+                                            coords = concatenate(internalCoord, generatedCoords_2);
                                             this.returned = geometryFactory.createLineString(coords);
                                             break;
                                         case 1:
-                                            coords = concatenate(generatedCoords_2, internal);
+                                            coords = concatenate(generatedCoords_2, internalCoord);
                                             this.returned = geometryFactory.createLineString(coords);
                                             break;
                                     }
@@ -213,6 +221,151 @@ public class CreateTouchesGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        //the whole case need to get fixed
+
+                        Polygonizer polygonizer = new Polygonizer();
+                        Random randomGenerator = new Random();
+                        int chunk = 3;
+                        LineString[] lines;
+                        System.out.println("lineLength " + lineLength);
+                        if (lineLength > 3) {
+                            int div = lineLength / 10;
+                            if (div < 2) {
+//                                div = 2;
+                            }
+                            Random rnd = new Random();
+                            System.out.println(" case LEN > 3 IF ");
+                            chunk = 3 + randomGenerator.nextInt((int) (div)); //edo eixa /2 epireazei polu to accept alla vgainoun polu mikra ta touches.. pos na valo extra simeia!?
+                            System.out.println("chunk " + chunk);
+                            lines = cutLineString(lineString, chunk);
+
+                            for (LineString line : lines) {
+                                Coordinate[] last = new Coordinate[1];
+                                last[0] = line.getCoordinates()[0];
+                                Coordinate[] ring = concatenate(line.getCoordinates(), last);
+                                LineString l = geometryFactory.createLineString(ring);
+                                polygonizer.add(l);
+                            }
+                            Collection polys = polygonizer.getPolygons();
+                            System.out.println("polys size " + polys.size());
+                            if (polys.size() > 0) {
+//                                    for (int i = 0; i < polys.size(); i++) {
+//                                        if (lineString.touches((Geometry) polys.toArray()[i])) {
+//                                            this.returned = (Geometry) polys.toArray()[i];
+//                                            break;
+//                                        }
+//                                    System.out.println(polys.toString());
+
+//                                    }
+                                int i = rnd.nextInt(polys.size());
+                                this.returned = (Geometry) polys.toArray()[i];
+
+                            } else {
+                                System.out.println("case LEN > 3 ELSE ");
+
+                                PolygonGenerator pg = new PolygonGenerator();
+                                pg.setGeometryFactory(geometryFactory);
+                                //default is ARC and need more points - check this
+                                pg.setGenerationAlgorithm(PolygonGenerator.ARC);
+                                pg.setNumberPoints(lineLength);
+                                pg.setBoundingBox(lineString.getEnvelopeInternal());
+                                this.returned = pg.create();
+
+//                                //THIS ALWAYS RETURNS A POLYGON THAT DO NOT FOLLOW THE TOUCHES DEFINITION! 
+//
+//                                Random c = new Random();
+//                                Envelope touchesPolyEnv = null;
+//                                Coordinate[] internalPolyCoord = new Coordinate[1];
+//
+//                                //CHECK IF: is it possible to never end?
+//                                //and why 5
+//                                while (touchesPolyEnv == null || touchesPolyEnv.getArea() < 5.0) {
+//                                    System.out.println("while! ");
+//                                    Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
+//                                    int r1 = lineCoord.length - 4;
+//                                    if (r1 <= 0) {
+//                                        r1 = 1;
+//                                        internalPolyCoord[0] = lineCoord[c.nextInt(r1)];
+//                                    } else {
+//                                        internalPolyCoord[0] = lineCoord[c.nextInt(r1) + 2];
+//                                    }
+//
+//                                    touchesPolyEnv = generateTouchesEnvelope(lineString, internalPolyCoord[0]);
+//
+//                                }
+//
+//                                int polyCoordsToGenerate = lineString.getNumPoints() - 1;
+//                                if (polyCoordsToGenerate < 4) {
+//                                    polyCoordsToGenerate = 4;
+//                                }
+//
+//                                PolygonGenerator pg = new PolygonGenerator();
+//                                pg.setGeometryFactory(geometryFactory);
+//                                //default is ARC and need more points - check this
+//                                pg.setGenerationAlgorithm(PolygonGenerator.ARC);
+//                                pg.setNumberPoints(polyCoordsToGenerate);
+//
+//                                Coordinate[] polyCoords;
+////                                System.out.println("internalCoord " + Arrays.toString(internalPolyCoord));
+//
+//                                pg.setBoundingBox(touchesPolyEnv);
+//                                Polygon pt_2 = (Polygon) pg.create();
+//                                if (pt_2 != null) {
+//                                    Coordinate[] generatedCoords_2 = pt_2.getCoordinates();
+////                                    System.out.println("generatedCoords_2 " + Arrays.toString(generatedCoords_2));
+//
+//                                    int ord = c.nextInt(2);
+//                                    switch (ord) {
+//                                        case 0:
+//                                            System.out.println("case 0 -------------------");
+//                                            polyCoords = concatenate(internalPolyCoord, generatedCoords_2);
+//                                            polyCoords = concatenate(polyCoords, internalPolyCoord);
+////                                            System.out.println("coords 1" + Arrays.toString(polyCoords));
+//                                            Polygon p = (Polygon) fixInvalidGeometry(geometryFactory.createPolygon(polyCoords));
+//
+////                                            System.out.println("valid " + p.isValid());
+//                                            this.returned = p;
+//                                            break;
+//                                        case 1:
+//                                            System.out.println("case 1 ******************");
+//                                            polyCoords = concatenate(generatedCoords_2, internalPolyCoord);
+//                                            polyCoords = concatenate(internalPolyCoord, polyCoords);
+////                                            System.out.println("coords 2" + Arrays.toString(polyCoords));
+//                                            Polygon p2 = (Polygon) fixInvalidGeometry(geometryFactory.createPolygon(polyCoords));
+//
+//                                            Coordinate[] finalP = p2.getCoordinates();
+//                                            finalP[0] = internalPolyCoord[0];
+//                                            finalP[p2.getCoordinates().length - 1] = internalPolyCoord[0];
+//                                            this.returned = geometryFactory.createPolygon(finalP);
+//
+//                                            System.out.println("valid " + this.returned);
+//
+////                                            this.returned = fixInvalidGeometry(geometryFactory.createPolygon(coords));
+//                                            break;
+//                                    }
+//                                }
+//
+                            }
+
+                        } else {
+
+                            //auta mporoun kai na skasoun an kanoun self intersect
+                            System.out.println("case LEN == 2");
+                            Coordinate[] newPoint = new Coordinate[3];
+
+                            PointGenerator pg = new PointGenerator();
+                            pg.setGeometryFactory(geometryFactory);
+                            pg.setBoundingBox(lineString.getEnvelopeInternal());
+                            Point pt1 = (Point) pg.create();
+                            newPoint[0] = pt1.getCoordinate();
+                            Point pt2 = (Point) pg.create();
+                            newPoint[1] = pt2.getCoordinate();
+                            newPoint[2] = lineString.getCoordinates()[0];
+                            Coordinate[] newCoords = concatenate(lineString.getCoordinates(), newPoint);
+                            Polygon p = geometryFactory.createPolygon(newCoords);
+                            this.returned = p;
+                        }
+
                         break;
                     case "MultiPolygon":
                         break;
@@ -630,4 +783,5 @@ public class CreateTouchesGeometryObject extends GeometryType {
         //System.out.println("touchesEnv " + touchesEnv);
         return touchesEnv;
     }
+
 }

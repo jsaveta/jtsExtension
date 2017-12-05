@@ -17,6 +17,8 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.gml2.LineStringGenerator;
+import com.vividsolutions.jts.io.gml2.PolygonGenerator;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -107,23 +109,24 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                         int length = lineString.getCoordinates().length;
 
                         int r1 = length - 2;
-                        if(r1 <= 0){r1 = 1;}
-                        int poinsToIntersect = randomGenerator.nextInt(r1) + 1;
-                        int pointsToGenerate = length - poinsToIntersect;
+                        if (r1 <= 0) {
+                            r1 = 1;
+                        }
+                        int pointsToIntersect = randomGenerator.nextInt(r1) + 1;
+                        int pointsToGenerate = length - pointsToIntersect;
                         if (pointsToGenerate < 4) {
                             pointsToGenerate = 4;
                         }
 
                         //generate the rest of points 
-                        LineStringGenerator pg = new LineStringGenerator();
-                        pg.setGeometryFactory(geometryFactory);
-                        pg.setBoundingBox(env);
-                        //pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
-                        pg.setNumberPoints(pointsToGenerate);
-                        LineString pt = (LineString) pg.create();
+                        LineStringGenerator lg = new LineStringGenerator();
+                        lg.setGeometryFactory(geometryFactory);
+                        lg.setBoundingBox(env);
+                        lg.setNumberPoints(pointsToGenerate);
+                        LineString pt = (LineString) lg.create();
 
                         //merge all points and create a new linestring
-                        Coordinate[] coords = concatenate(pickNRandom(lineString.getCoordinates(), poinsToIntersect), pt.getCoordinates());
+                        Coordinate[] coords = concatenate(pickNRandom(lineString.getCoordinates(), pointsToIntersect), pt.getCoordinates());
                         this.returned = geometryFactory.createLineString(coords);
 
                         break;
@@ -133,7 +136,28 @@ public class CreateIntersectsGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        ArrayList<Envelope> crossesPolyEnvelopes = cutGeometryEnvelopeAt(lineString, lineString.getCoordinates().length / 2, 2);
+                        Random rnd = new Random();
+                        int i = rnd.nextInt(crossesPolyEnvelopes.size());
+                        Envelope crossesPolyEnv = crossesPolyEnvelopes.get(i);
+
+                        int cToGenerate = lineString.getNumPoints() - 1;
+                        if (cToGenerate < 4) {
+                            cToGenerate = 4;
+                        }
+                        PolygonGenerator pg = new PolygonGenerator();
+                        pg.setGeometryFactory(geometryFactory);
+                        pg.setNumberPoints(cToGenerate);
+                        pg.setBoundingBox(crossesPolyEnv);
+                        pg.setGenerationAlgorithm(LineStringGenerator.ARC);
+                        
+                        Polygon poly = (Polygon) pg.create();
+                        if (poly != null) {
+                            poly = (Polygon) fixInvalidGeometry(poly);
+                            this.returned = poly;
+                        }
                         break;
+
                     case "MultiPolygon":
                         break;
                     case "GeometryCollection":

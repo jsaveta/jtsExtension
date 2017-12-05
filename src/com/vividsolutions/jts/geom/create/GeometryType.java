@@ -99,7 +99,7 @@ public abstract class GeometryType {
      * @param chunk the number of Coordinates of each smaller line
      * @return a Linestring[] of the smaller LineString
      */
-    protected LineString[] getLineStringArray(LineString line, int chunk) {
+    protected LineString[] cutLineString(LineString line, int chunk) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Coordinate[] coord = line.getCoordinates();
         Coordinate[][] chunckedArray = chunkArray(coord, chunk);
@@ -110,6 +110,7 @@ public abstract class GeometryType {
             System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
             lineArray[i] = geometryFactory.createLineString(coordTemp);
         }
+        System.out.println("cutLineString lineArray " +Arrays.toString(lineArray));
         return lineArray;
     }
 
@@ -287,4 +288,21 @@ public abstract class GeometryType {
         }
         return result.toArray(new Coordinate[result.size()]);
     }
+
+    public Geometry fixInvalidGeometry(Geometry geom) {
+        if (!geom.isValid()) {
+            System.out.println("Geom is invalid, Fixing it..");
+            System.out.println("invalid Geom " + geom.toString());
+            System.out.println("convexHull Geom " + geom.convexHull());
+            Geometry fixedGeom = geom.buffer(0);
+            if (fixedGeom.isEmpty()) {
+                fixedGeom = geom.buffer(0.0000001);
+            }
+            System.out.println("fixed invalid geom " +fixedGeom.toString());
+            return fixedGeom;
+        }
+        System.out.println("Geom is valid " +geom.toString());
+        return geom;
+    }
+
 }

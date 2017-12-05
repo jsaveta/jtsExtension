@@ -5,6 +5,7 @@
  */
 package com.vividsolutions.jts.geom.create;
 
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -101,7 +102,7 @@ public class CreateContainsGeometryObject extends GeometryType {
                         }
 
                         int chunk = randomGenerator.nextInt(r1) + 2;
-                        LineString[] lineArray = getLineStringArray(lineString, chunk);
+                        LineString[] lineArray = cutLineString(lineString, chunk);
 
                         int r2 = lineArray.length;
                         if (r2 <= 0) {
@@ -112,7 +113,7 @@ public class CreateContainsGeometryObject extends GeometryType {
 
                         while (!lineString.contains(line)) {
                             chunk = randomGenerator.nextInt(r1) + 2;
-                            lineArray = getLineStringArray(lineString, chunk);
+                            lineArray = cutLineString(lineString, chunk);
                             r2 = lineArray.length;
                             if (r2 <= 0) {
                                 r2 = 1;
@@ -127,6 +128,16 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "MultiLineString":
                         break;
                     case "Polygon":
+                        Coordinate[] newCoords = new Coordinate[lineString.getCoordinates().length + 1];
+                        System.arraycopy(lineString.getCoordinates(), 0, newCoords, 0, newCoords.length - 1);
+                        newCoords[newCoords.length - 1] = lineString.getCoordinates()[0];
+                        Polygon poly = geometryFactory.createPolygon(newCoords);
+                        poly = (Polygon) poly.convexHull().buffer(1);
+                        
+                        if (poly instanceof Polygon) {
+                            this.returned = poly;
+                        } 
+
                         break;
                     case "MultiPolygon":
                         break;
