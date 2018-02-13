@@ -110,7 +110,7 @@ public abstract class GeometryType {
             System.arraycopy(chunckedArray[i], 0, coordTemp, 0, chunckedArray[i].length);
             lineArray[i] = geometryFactory.createLineString(coordTemp);
         }
-        System.out.println("cutLineString lineArray " +Arrays.toString(lineArray));
+//        System.out.println("cutLineString lineArray " +Arrays.toString(lineArray));
         return lineArray;
     }
 

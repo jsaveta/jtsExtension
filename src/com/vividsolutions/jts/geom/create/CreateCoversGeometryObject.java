@@ -101,23 +101,44 @@ public class CreateCoversGeometryObject extends GeometryType {
                         if (r1 <= 0) {
                             r1 = 1;
                         }
+
+                        //cut the line into pieces in order to keep a small part of it
                         int chunk = randomGenerator.nextInt(r1) + 2;
                         LineString[] lineArray = cutLineString(lineString, chunk);
-                        int r2 = lineArray.length - 2;
+
+                        int r2 = lineArray.length;
                         if (r2 <= 0) {
                             r2 = 1;
                         }
+                        //keep a random smaller part of the linestring
                         int randomInt = randomGenerator.nextInt(r2);
                         LineString line = lineArray[randomInt];
-                        while (!lineString.covers(line)) {
+
+                        //if the small part is not contained into the linestring (does not follow the definition of contains)
+                        //cut and pick again                             
+                        while (!lineString.contains(line)) {
+                            r1 = r1 - (int) (r1 * 0.2); //reduce linstring part 20%
+                            if (r1 <= 0) {
+                                r1 = 1;
+                            }
                             chunk = randomGenerator.nextInt(r1) + 2;
                             lineArray = cutLineString(lineString, chunk);
-                            r2 = lineArray.length - 2;
+
+                            r2 = lineArray.length;
                             if (r2 <= 0) {
                                 r2 = 1;
                             }
                             randomInt = randomGenerator.nextInt(r2);
                             line = lineArray[randomInt];
+
+                            if (!lineString.covers(line)) {
+                                for (LineString lineArray1 : lineArray) {
+                                    if (lineString.contains(lineArray1)) {
+                                        this.returned = lineArray1;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         this.returned = line;
                         break;

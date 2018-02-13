@@ -96,11 +96,11 @@ public class CreateContainsGeometryObject extends GeometryType {
                     case "LineString":
                         Random randomGenerator = new Random();
                         int r1 = lineString.getCoordinates().length - 2;
-
                         if (r1 <= 0) {
                             r1 = 1;
                         }
 
+                        //cut the line into pieces in order to keep a small part of it
                         int chunk = randomGenerator.nextInt(r1) + 2;
                         LineString[] lineArray = cutLineString(lineString, chunk);
 
@@ -108,18 +108,35 @@ public class CreateContainsGeometryObject extends GeometryType {
                         if (r2 <= 0) {
                             r2 = 1;
                         }
+                        //keep a random smaller part of the linestring
                         int randomInt = randomGenerator.nextInt(r2);
                         LineString line = lineArray[randomInt];
 
+                        //if the small part is not contained into the linestring (does not follow the definition of contains)
+                        //cut and pick again                             
                         while (!lineString.contains(line)) {
+                            r1 = r1 - (int) (r1 * 0.2); //reduce linstring part 20%
+                            if (r1 <= 0) {
+                                r1 = 1;
+                            }
                             chunk = randomGenerator.nextInt(r1) + 2;
                             lineArray = cutLineString(lineString, chunk);
+
                             r2 = lineArray.length;
                             if (r2 <= 0) {
                                 r2 = 1;
                             }
                             randomInt = randomGenerator.nextInt(r2);
                             line = lineArray[randomInt];
+
+                            if (!lineString.contains(line)) {
+                                for (LineString lineArray1 : lineArray) {
+                                    if (lineString.contains(lineArray1)) {
+                                        this.returned = lineArray1;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                         this.returned = line;
                         break;
@@ -133,10 +150,10 @@ public class CreateContainsGeometryObject extends GeometryType {
                         newCoords[newCoords.length - 1] = lineString.getCoordinates()[0];
                         Polygon poly = geometryFactory.createPolygon(newCoords);
                         poly = (Polygon) poly.convexHull().buffer(1);
-                        
+
                         if (poly instanceof Polygon) {
                             this.returned = poly;
-                        } 
+                        }
 
                         break;
                     case "MultiPolygon":

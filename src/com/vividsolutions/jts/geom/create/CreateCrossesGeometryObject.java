@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  *
@@ -33,6 +34,7 @@ public class CreateCrossesGeometryObject extends GeometryType {
     protected Geometry returned;
     protected int chunk;
     protected Class<?> returnedGeometry;
+private final static Logger LOGGER = Logger.getLogger(CreateCrossesGeometryObject.class.getName());
 
     public CreateCrossesGeometryObject(Geometry givenGeometry, GeometryType.GeometryTypes geometry) {
         this.chunk = 2;
@@ -43,7 +45,6 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
     public Geometry generateGeometry() {
         String givenGeometryType = this.given.getGeometryType();
-
         GeometryFactory geometryFactory = new GeometryFactory();
 
         switch (givenGeometryType) {
@@ -109,20 +110,10 @@ public class CreateCrossesGeometryObject extends GeometryType {
 
                         Coordinate[] lineCoord = uniqueElements(lineString.getCoordinates());
 
+                   
                         //makes sure there is some "space" to generate a linestrin in it
-                        while (crossesEnv == null || crossesEnv.getArea() < 5.0) { //why 5.0?
-                            //(max - min + 1) + min
-                            int r1 = lineCoord.length - 4;
-                            if (r1 <= 0) {
-                                r1 = 1;
-                            }
-
-                            if (r1 <= 0) {
-                                r1 = 1;
-                                internal[0] = lineCoord[coin.nextInt(r1)];
-                            } else {
-                                internal[0] = lineCoord[coin.nextInt(r1) + 2];
-                            }
+                        while (crossesEnv == null) { 
+                            internal[0] = lineCoord[coin.nextInt(lineCoord.length - 4) + 2];
 
                             crossesEnv = generateCrossesEnvelope(lineString, internal[0]);
                         }

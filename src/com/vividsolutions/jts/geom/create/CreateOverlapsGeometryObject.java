@@ -100,23 +100,13 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                     case "MultiPoint":
                         break;
                     case "LineString":
-//                        Random randomGenerator = new Random();
-
                         int chunck = lineString.getCoordinates().length / 2;
                         if (lineString.getCoordinates().length == 3) {
                             chunk = 2;
                         }
 
                         LineString[] lineArray = cutLineString(lineString, chunck);
-//                        int rand = randomGenerator.nextInt(2); //keep first or last part of the line
-//                        System.out.println("rand " +rand);
-//                        LineString line = lineArray[0];
-//                        if (rand == 1) {
-//                            line = lineArray[lineArray.length - 1];
-//                        }
 
-                        //remove comments above and delete the following two lines when the given lines are real  
-                        //because now it generates the exact same linestring and do not follow the definition of overlaps
                         int rand = 0;
                         LineString line = lineArray[rand];
 
@@ -124,9 +114,6 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                         int poinsToIntersect = line.getCoordinates().length;
                         int pointsToGenerate = length - poinsToIntersect;
 
-//                        System.out.println("length " +length);
-//                        System.out.println("poinsToIntersect " +poinsToIntersect);
-//                        System.out.println("pointsToGenerate " +pointsToGenerate);
                         Coordinate[] coords;
 
                         if (pointsToGenerate == 1) {
@@ -134,10 +121,6 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                             pg.setGeometryFactory(geometryFactory);
                             pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
                             Point pt = (Point) pg.create();
-//                             coords = concatenate(pt.getCoordinates(), line.getCoordinates());
-//                                    this.returned = geometryFactory.createLineString(coords);
-//                                    break;
-//                            merge all points and create a new linestring
                             switch (rand) {
                                 case 0:
                                     coords = concatenate(line.getCoordinates(), pt.getCoordinates());
@@ -156,17 +139,11 @@ public class CreateOverlapsGeometryObject extends GeometryType {
                             pg.setBoundingBox(new Envelope(-180, 180, -90, 90));
                             //pg.setGenerationAlgorithm(LineStringGenerator.HORZ);
                             if (pointsToGenerate < 4) {
-                                //check this
                                 //or HORZ
                                 pg.setGenerationAlgorithm(LineStringGenerator.VERT);
                             }
                             pg.setNumberPoints(pointsToGenerate);
                             LineString pt = (LineString) pg.create();
-//                            System.out.println("pt " + pt.toString());
-
-//                            coords = concatenate(pt.getCoordinates(), line.getCoordinates());
-//                                    this.returned = geometryFactory.createLineString(coords);
-//                                    break;
                             //merge all points and create a new linestring
                             switch (rand) {
                                 case 0:

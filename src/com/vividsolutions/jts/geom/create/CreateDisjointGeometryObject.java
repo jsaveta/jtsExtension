@@ -349,7 +349,6 @@ public class CreateDisjointGeometryObject extends GeometryType {
 
         } else {
 //if moving just up, down, left or right is not possible
-//            System.out.println("ELSE");
 
 //        System.out.println("envelopes " + envelopes);
             List<Double> minXes = new ArrayList<Double>();
